@@ -21,9 +21,9 @@ def test_rate_limit_module_exports_clock_and_fixed_window_rate_limiter() -> None
 def test_fixed_window_rate_limiter_init_is_keyword_only() -> None:
     sig = inspect.signature(FixedWindowRateLimiter)
     for name, param in sig.parameters.items():
-        assert (
-            param.kind is inspect.Parameter.KEYWORD_ONLY
-        ), f"parameter {name!r} must be keyword-only, got {param.kind}"
+        assert param.kind is inspect.Parameter.KEYWORD_ONLY, (
+            f"parameter {name!r} must be keyword-only, got {param.kind}"
+        )
 
 
 def test_allow_returns_true_up_to_max_calls_then_false_within_one_window() -> None:
