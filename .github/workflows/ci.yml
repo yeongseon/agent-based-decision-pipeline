@@ -50,7 +50,12 @@ jobs:
 
       - name: Mutmut results
         if: always()
-        run: mutmut results
+        run: |
+          mutmut results
+          for m in $(mutmut results 2>/dev/null | awk '/survived/ {print $1}' | tr -d ':'); do
+            echo "=== survivor: $m ==="
+            mutmut show "$m" || true
+          done
 
       - name: Build package
         run: python -m build
