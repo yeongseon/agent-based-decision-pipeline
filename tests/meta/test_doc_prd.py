@@ -60,30 +60,38 @@ FORBIDDEN_SNIPPETS: list[str] = [
 ]
 
 
+def _read_prd_text() -> str:
+    return PRD_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: list[str]) -> None:
+    position = -1
+    for snippet in snippets:
+        next_position = text.find(snippet, position + 1)
+        assert next_position != -1, f"Missing snippet: {snippet}"
+        assert next_position > position, f"Snippet out of order: {snippet}"
+        position = next_position
+
+
 def test_prd_file_exists() -> None:
     assert PRD_PATH.is_file(), f"Expected PRD file at {PRD_PATH}"
 
 
 def test_prd_has_title_and_single_vision_reference() -> None:
-    text = PRD_PATH.read_text(encoding="utf-8")
+    text = _read_prd_text()
 
     assert text.startswith(f"{TITLE}\n")
     assert text.count(VISION_REFERENCE) == 1
 
 
 def test_prd_has_required_section_headings_in_order() -> None:
-    text = PRD_PATH.read_text(encoding="utf-8")
+    text = _read_prd_text()
 
-    position = -1
-    for heading in REQUIRED_HEADINGS:
-        next_position = text.find(heading, position + 1)
-        assert next_position != -1, f"Missing heading: {heading}"
-        assert next_position > position, f"Heading out of order: {heading}"
-        position = next_position
+    _assert_snippets_in_order(text, REQUIRED_HEADINGS)
 
 
 def test_prd_sections_include_expected_anchors() -> None:
-    text = PRD_PATH.read_text(encoding="utf-8")
+    text = _read_prd_text()
 
     for index, heading in enumerate(REQUIRED_HEADINGS):
         start = text.index(heading)
@@ -97,7 +105,7 @@ def test_prd_sections_include_expected_anchors() -> None:
 
 
 def test_prd_includes_required_phrases_and_omits_forbidden_snippets() -> None:
-    text = PRD_PATH.read_text(encoding="utf-8")
+    text = _read_prd_text()
 
     for phrase in REQUIRED_PHRASES:
         assert phrase in text, f"Missing required phrase: {phrase}"
@@ -107,6 +115,6 @@ def test_prd_includes_required_phrases_and_omits_forbidden_snippets() -> None:
 
 
 def test_prd_stays_within_line_budget() -> None:
-    text = PRD_PATH.read_text(encoding="utf-8")
+    text = _read_prd_text()
 
     assert len(text.splitlines()) <= MAX_LINE_COUNT
