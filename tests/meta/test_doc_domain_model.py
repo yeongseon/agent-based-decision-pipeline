@@ -72,12 +72,25 @@ FORBIDDEN_SNIPPETS: list[str] = [
 ]
 
 
+def _read_domain_model_text() -> str:
+    return DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: list[str]) -> None:
+    position = -1
+    for snippet in snippets:
+        next_position = text.find(snippet, position + 1)
+        assert next_position != -1, f"Missing snippet: {snippet}"
+        assert next_position > position, f"Snippet out of order: {snippet}"
+        position = next_position
+
+
 def test_domain_model_file_exists() -> None:
     assert DOMAIN_MODEL_PATH.is_file(), f"Expected domain model doc at {DOMAIN_MODEL_PATH}"
 
 
 def test_domain_model_has_title_and_single_architecture_reference() -> None:
-    text = DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+    text = _read_domain_model_text()
 
     assert text.startswith(f"{TITLE}\n"), f"Expected domain model doc to start with {TITLE!r}"
     assert text.count(ARCHITECTURE_REFERENCE) == 1, (
@@ -86,18 +99,13 @@ def test_domain_model_has_title_and_single_architecture_reference() -> None:
 
 
 def test_domain_model_has_required_section_headings_in_order() -> None:
-    text = DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+    text = _read_domain_model_text()
 
-    position = -1
-    for heading in REQUIRED_HEADINGS:
-        next_position = text.find(heading, position + 1)
-        assert next_position != -1, f"Missing heading: {heading}"
-        assert next_position > position, f"Heading out of order: {heading}"
-        position = next_position
+    _assert_snippets_in_order(text, REQUIRED_HEADINGS)
 
 
 def test_domain_model_sections_include_expected_anchors() -> None:
-    text = DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+    text = _read_domain_model_text()
 
     for index, heading in enumerate(REQUIRED_HEADINGS):
         start = text.index(heading)
@@ -111,7 +119,7 @@ def test_domain_model_sections_include_expected_anchors() -> None:
 
 
 def test_domain_model_includes_required_phrases_and_omits_forbidden_snippets() -> None:
-    text = DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+    text = _read_domain_model_text()
 
     for phrase in REQUIRED_PHRASES:
         assert phrase in text, f"Missing required phrase: {phrase}"
@@ -121,6 +129,6 @@ def test_domain_model_includes_required_phrases_and_omits_forbidden_snippets() -
 
 
 def test_domain_model_stays_within_line_budget() -> None:
-    text = DOMAIN_MODEL_PATH.read_text(encoding="utf-8")
+    text = _read_domain_model_text()
 
     assert len(text.splitlines()) <= MAX_LINE_COUNT, f"Domain model doc exceeds line budget of {MAX_LINE_COUNT}"
