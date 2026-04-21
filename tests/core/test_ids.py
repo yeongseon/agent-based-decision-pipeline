@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import cast
 from uuid import NAMESPACE_DNS, NAMESPACE_OID, NAMESPACE_URL, UUID, uuid5
 
 import pytest
@@ -81,17 +82,17 @@ def test_deterministic_uuid_accepts_long_name() -> None:
 )
 def test_deterministic_uuid_rejects_invalid_seed(seed_value: object, exc: type[Exception], match: str) -> None:
     with pytest.raises(exc, match=match):
-        deterministic_uuid(seed_value, NAMESPACE_DNS, "node")  # type: ignore[arg-type]
+        deterministic_uuid(cast(Seed, seed_value), NAMESPACE_DNS, "node")
 
 
 def test_deterministic_uuid_rejects_non_uuid_namespace() -> None:
     with pytest.raises(TypeError, match=r"^namespace must be UUID, got str$"):
-        deterministic_uuid(Seed(1), "not-a-uuid", "node")  # type: ignore[arg-type]
+        deterministic_uuid(Seed(1), cast(UUID, "not-a-uuid"), "node")
 
 
 def test_deterministic_uuid_rejects_non_string_name() -> None:
     with pytest.raises(TypeError, match=r"^name must be str, got int$"):
-        deterministic_uuid(Seed(1), NAMESPACE_DNS, 7)  # type: ignore[arg-type]
+        deterministic_uuid(Seed(1), NAMESPACE_DNS, cast(str, 7))
 
 
 @given(seed_strategy(), st.uuids(), name_strategy())
@@ -145,7 +146,7 @@ def test_parse_uuid_rejects_invalid_uuid_text(text: str) -> None:
 
 def test_parse_uuid_rejects_non_string_input() -> None:
     with pytest.raises(TypeError, match=r"^UUID value must be str, got int$"):
-        parse_uuid(7)  # type: ignore[arg-type]
+        parse_uuid(cast(str, 7))
 
 
 def test_parse_uuid_works_for_namespace_constants() -> None:
