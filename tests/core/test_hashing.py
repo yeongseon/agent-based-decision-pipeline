@@ -10,7 +10,7 @@ from hypothesis import given, settings, strategies as st
 from hypothesis.strategies import SearchStrategy
 
 import abdp.core.hashing as hashing_module
-from abdp.core.hashing import stable_hash
+from abdp.core.hashing import _canonical_json_bytes, stable_hash
 from abdp.core.types import JsonValue
 
 HEX_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -57,6 +57,28 @@ def test_hashing_module_docstring_includes_stable_hashing_contract_anchor() -> N
     assert hashing_module.__doc__ is not None
     assert "Stable hashing contract:" in hashing_module.__doc__
     assert "not for security signing" in hashing_module.__doc__
+
+
+def test_hashing_module_exposes_only_stable_hash_publicly() -> None:
+    assert hashing_module.__all__ == ["stable_hash"]
+
+
+def test_canonical_json_bytes_sorts_object_keys_and_omits_whitespace() -> None:
+    assert _canonical_json_bytes({"b": 2, "a": 1}) == b'{"a":1,"b":2}'
+
+
+def test_canonical_json_bytes_preserves_array_order() -> None:
+    assert _canonical_json_bytes([3, 1, 2]) == b"[3,1,2]"
+
+
+def test_canonical_json_bytes_emits_unicode_without_ascii_escaping() -> None:
+    assert _canonical_json_bytes("한") == '"한"'.encode()
+
+
+def test_canonical_json_bytes_rejects_non_finite_floats_directly() -> None:
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match=r"Out of range float values are not JSON compliant"):
+            _canonical_json_bytes(value)
 
 
 def test_stable_hash_returns_expected_digest_for_none() -> None:
