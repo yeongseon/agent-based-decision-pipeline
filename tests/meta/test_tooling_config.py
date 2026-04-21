@@ -35,6 +35,11 @@ EXPECTED_COVERAGE_EXCLUDE_LINES = (
     "pragma: no cover",
     'if __name__ == "__main__":',
     "if TYPE_CHECKING:",
+    r"^\s*\.\.\.\s*$",
+)
+EXPECTED_COVERAGE_PARTIAL_BRANCHES = (
+    "pragma: no branch",
+    r"^\s*(?:async\s+def|def)\b.*:\s*\.\.\.\s*$",
 )
 
 EXPECTED_RUNTIME_DEPENDENCIES: list[str] = []
@@ -122,6 +127,7 @@ def test_coverage_configuration_requires_full_branch_coverage_for_package_code()
     assert coverage_config.getboolean("report", "show_missing") is True
     assert coverage_config.getboolean("report", "skip_covered") is True
     assert _split_lines(coverage_config["report"]["exclude_lines"]) == EXPECTED_COVERAGE_EXCLUDE_LINES
+    assert _split_lines(coverage_config["report"]["partial_branches"]) == EXPECTED_COVERAGE_PARTIAL_BRANCHES
 
 
 def test_pyproject_dev_extras_include_required_tooling_dependencies() -> None:
