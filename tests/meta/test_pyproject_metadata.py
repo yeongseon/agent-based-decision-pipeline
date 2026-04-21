@@ -8,9 +8,7 @@ PYPROJECT_PATH = REPO_ROOT / "pyproject.toml"
 
 EXPECTED_PROJECT_NAME = "abdp"
 EXPECTED_PROJECT_VERSION = "0.1.0.dev0"
-EXPECTED_PROJECT_DESCRIPTION = (
-    "A Python framework for reproducible agent-based decision simulation"
-)
+EXPECTED_PROJECT_DESCRIPTION = "A Python framework for reproducible agent-based decision simulation"
 EXPECTED_PROJECT_README = "README.md"
 EXPECTED_PROJECT_REQUIRES_PYTHON = ">=3.12"
 EXPECTED_PROJECT_LICENSE = {"file": "LICENSE"}

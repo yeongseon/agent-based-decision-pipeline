@@ -33,9 +33,7 @@ def _read_active_gitignore_lines() -> tuple[str, ...]:
     assert GITIGNORE_PATH.is_file()
 
     return tuple(
-        line
-        for line in GITIGNORE_PATH.read_text(encoding="utf-8").splitlines()
-        if line and not line.startswith("#")
+        line for line in GITIGNORE_PATH.read_text(encoding="utf-8").splitlines() if line and not line.startswith("#")
     )
 
 

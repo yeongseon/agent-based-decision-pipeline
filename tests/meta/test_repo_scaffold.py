@@ -5,7 +5,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 EXPECTED_README_TEXT = (
-    "# agent-based-decision-pipeline\n\n" "A Python framework for reproducible agent-based decision simulation"
+    "# agent-based-decision-pipeline\n\nA Python framework for reproducible agent-based decision simulation"
 )
 
 REQUIRED_SCAFFOLD_PATHS = (
