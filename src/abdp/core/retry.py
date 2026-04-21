@@ -5,8 +5,12 @@
   contain only ``Exception`` subclasses; ``BaseException`` subclasses such
   as ``KeyboardInterrupt`` and ``SystemExit`` are rejected so that process
   control signals are never swallowed by retry logic.
-- ``max_attempts`` counts total invocations including the first call and
-  must be at least 1.
+- ``max_attempts`` counts total invocations including the first call,
+  must be a real ``int`` (``bool`` is rejected) and must be at least 1.
+- ``on`` must be a ``tuple`` of exception classes; passing a single
+  exception class, a ``list``, or any other container is rejected at
+  decoration time so misuse fails loudly instead of leaking
+  ``TypeError`` from the underlying ``except`` clause.
 - ``backoff(attempt)`` returns the delay in seconds after failed attempt
   ``attempt``, where ``attempt`` starts at 1.
 - Delays are applied only between attempts; never before the first call
@@ -52,8 +56,12 @@ def _validate_config(
     on: tuple[type[Exception], ...],
     max_attempts: int,
 ) -> None:
+    if isinstance(max_attempts, bool) or not isinstance(max_attempts, int):
+        raise TypeError(f"max_attempts must be an int, got {type(max_attempts).__name__}")
     if max_attempts < _MIN_ATTEMPTS:
         raise ValueError(f"max_attempts must be at least 1, got {max_attempts}")
+    if not isinstance(on, tuple):
+        raise TypeError(f"on must be a tuple of exception types, got {type(on).__name__}")
     if not on:
         raise ValueError("on must contain at least one exception type")
     for entry in on:

@@ -277,3 +277,33 @@ def test_retry_default_backoff_yields_zero_delay() -> None:
         fails()
     assert attempts == 3
     assert sleep_calls == [0.0, 0.0]
+
+
+def test_retry_rejects_non_int_max_attempts() -> None:
+    float_attempts = cast(int, 1.5)
+    with pytest.raises(TypeError, match=r"^max_attempts must be an int, got float$"):
+        retry(on=(ValueError,), max_attempts=float_attempts)
+
+    str_attempts = cast(int, "3")
+    with pytest.raises(TypeError, match=r"^max_attempts must be an int, got str$"):
+        retry(on=(ValueError,), max_attempts=str_attempts)
+
+
+def test_retry_rejects_bool_max_attempts() -> None:
+    bool_attempts = cast(int, True)
+    with pytest.raises(TypeError, match=r"^max_attempts must be an int, got bool$"):
+        retry(on=(ValueError,), max_attempts=bool_attempts)
+
+    false_attempts = cast(int, False)
+    with pytest.raises(TypeError, match=r"^max_attempts must be an int, got bool$"):
+        retry(on=(ValueError,), max_attempts=false_attempts)
+
+
+def test_retry_rejects_non_tuple_on() -> None:
+    bare_class = cast(tuple[type[Exception], ...], ValueError)
+    with pytest.raises(TypeError, match=r"^on must be a tuple of exception types, got type$"):
+        retry(on=bare_class, max_attempts=2)
+
+    list_on = cast(tuple[type[Exception], ...], [ValueError])
+    with pytest.raises(TypeError, match=r"^on must be a tuple of exception types, got list$"):
+        retry(on=list_on, max_attempts=2)
