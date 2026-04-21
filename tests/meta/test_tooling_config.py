@@ -39,7 +39,7 @@ EXPECTED_COVERAGE_EXCLUDE_LINES = (
 )
 EXPECTED_COVERAGE_PARTIAL_BRANCHES = (
     "pragma: no branch",
-    r"\.\.\.",
+    r"^\s*(?:async\s+def|def)\b.*:\s*\.\.\.\s*$",
 )
 
 EXPECTED_RUNTIME_DEPENDENCIES: list[str] = []
