@@ -18,7 +18,7 @@ def seed_strategy() -> SearchStrategy[Seed]:
 
 def name_strategy() -> SearchStrategy[str]:
     return st.text(
-        alphabet=st.characters(blacklist_categories=("Cs",)),
+        alphabet=st.characters(exclude_categories=["Cs"]),
         max_size=256,
     )
 
