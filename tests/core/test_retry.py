@@ -271,5 +271,3 @@ def test_retry_default_backoff_yields_zero_delay() -> None:
         fails()
     assert attempts == 3
     assert sleep_calls == [0.0, 0.0]
-
-
