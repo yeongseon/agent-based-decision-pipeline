@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Iterator
-from typing import Protocol
+from typing import Protocol, cast
 
 import pytest
 
@@ -173,25 +173,31 @@ def test_retry_validates_on_is_not_empty() -> None:
 
 
 def test_retry_rejects_base_exception_subclasses_in_on() -> None:
+    base_exception_subclasses = cast(
+        tuple[type[Exception], ...],
+        (KeyboardInterrupt,),
+    )
     with pytest.raises(
         TypeError,
         match=r"^on entries must be subclasses of Exception, got KeyboardInterrupt$",
     ):
-        retry(on=(KeyboardInterrupt,), max_attempts=2)  # type: ignore[arg-type]
+        retry(on=base_exception_subclasses, max_attempts=2)
 
+    raw_base_exception = cast(tuple[type[Exception], ...], (BaseException,))
     with pytest.raises(
         TypeError,
         match=r"^on entries must be subclasses of Exception, got BaseException$",
     ):
-        retry(on=(BaseException,), max_attempts=2)  # type: ignore[arg-type]
+        retry(on=raw_base_exception, max_attempts=2)
 
 
 def test_retry_rejects_non_class_entries_in_on() -> None:
+    non_class_entry = cast(tuple[type[Exception], ...], (123,))
     with pytest.raises(
         TypeError,
         match=r"^on entries must be subclasses of Exception, got int$",
     ):
-        retry(on=(123,), max_attempts=2)  # type: ignore[arg-type]
+        retry(on=non_class_entry, max_attempts=2)
 
 
 def test_retry_rejects_async_function() -> None:
