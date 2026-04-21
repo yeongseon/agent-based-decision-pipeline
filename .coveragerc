@@ -11,3 +11,7 @@ exclude_lines =
     pragma: no cover
     if __name__ == "__main__":
     if TYPE_CHECKING:
+    ^\s*\.\.\.\s*$
+partial_branches =
+    pragma: no branch
+    \.\.\.
