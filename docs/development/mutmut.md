@@ -30,3 +30,27 @@ Mutmut configuration lives in the `[tool.mutmut]` table of `pyproject.toml`.
 The `pytest_add_cli_args` entry only affects pytest invocations issued by
 mutmut workers; it does not influence the regular `pytest` command used in
 the local quality gates or the CI **`Pytest with coverage`** step.
+
+## Known equivalent mutants
+
+Some mutations produce code that is behaviorally identical to the original
+and therefore cannot be killed by any test. These are tracked here so they
+are not re-investigated on every CI run. Equivalent-mutant survivors do not
+count against the `0 surviving mutations` quality gate; they are exceptions
+documented per mutant ID with the exact mutation diff and the equivalence
+rationale.
+
+### `abdp.core.hashing`
+
+- `abdp.core.hashing.x__canonical_json_bytes__mutmut_4`:
+  `ensure_ascii=False` -> `ensure_ascii=None`. `json.dumps` interprets the
+  flag via truthiness, and `None` is falsy, so the canonical output is
+  byte-identical to the original.
+- `abdp.core.hashing.x__canonical_json_bytes__mutmut_6`:
+  `allow_nan=False` -> `allow_nan=None`. Same rationale as above; `None` is
+  falsy and `json.dumps` raises on non-finite floats in both cases, so the
+  canonical output is byte-identical.
+
+If a future change makes either flag observable (for example, by switching
+to a JSON encoder that distinguishes `None` from `False`), revisit these
+entries instead of treating them as permanent exceptions.

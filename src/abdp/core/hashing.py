@@ -25,12 +25,16 @@ _HASH_ALGORITHM: Final = "sha256"
 
 
 def _canonical_json_bytes(value: JsonValue) -> bytes:
+    # ``ensure_ascii=False`` and ``allow_nan=False`` produce two known equivalent
+    # mutants (``False`` -> ``None``); ``None`` is falsy and behaves identically
+    # to ``False`` in ``json.dumps``. See ``docs/development/mutmut.md`` for the
+    # mutant IDs and rationale.
     return json.dumps(
         value,
         sort_keys=True,
-        ensure_ascii=False,  # pragma: no mutate
+        ensure_ascii=False,
         separators=(",", ":"),
-        allow_nan=False,  # pragma: no mutate
+        allow_nan=False,
     ).encode("utf-8")  # pragma: no mutate
 
 
