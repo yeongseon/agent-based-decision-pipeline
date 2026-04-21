@@ -48,5 +48,9 @@ jobs:
       - name: Mutmut
         run: mutmut run
 
+      - name: Mutmut results
+        if: always()
+        run: mutmut results
+
       - name: Build package
         run: python -m build
