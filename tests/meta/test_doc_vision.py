@@ -56,26 +56,32 @@ FORBIDDEN_SNIPPETS: tuple[str, ...] = (
 MAX_VISION_LINES = 60
 
 
-def test_vision_file_exists() -> None:
+def _read_vision_text() -> str:
     assert VISION_PATH.is_file(), VISION_PATH
+    return VISION_PATH.read_text(encoding="utf-8")
 
 
-def test_vision_includes_tagline_and_required_sections_in_order() -> None:
-    assert VISION_PATH.is_file(), VISION_PATH
-    text = VISION_PATH.read_text(encoding="utf-8")
-
-    assert TAGLINE in text
-
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
     start = 0
-    for snippet in SECTION_HEADINGS:
+    for snippet in snippets:
         index = text.find(snippet, start)
         assert index >= 0, snippet
         start = index + len(snippet)
 
 
+def test_vision_file_exists() -> None:
+    assert VISION_PATH.is_file()
+
+
+def test_vision_includes_tagline_and_required_sections_in_order() -> None:
+    text = _read_vision_text()
+
+    assert TAGLINE in text
+    _assert_snippets_in_order(text, SECTION_HEADINGS)
+
+
 def test_each_section_contains_expected_snippets() -> None:
-    assert VISION_PATH.is_file(), VISION_PATH
-    text = VISION_PATH.read_text(encoding="utf-8")
+    text = _read_vision_text()
 
     for index, (heading, snippets) in enumerate(SECTION_SNIPPETS):
         section_start = text.index(heading)
@@ -91,8 +97,7 @@ def test_each_section_contains_expected_snippets() -> None:
 
 
 def test_vision_avoids_forbidden_scope_and_stays_within_line_budget() -> None:
-    assert VISION_PATH.is_file(), VISION_PATH
-    text = VISION_PATH.read_text(encoding="utf-8")
+    text = _read_vision_text()
 
     for snippet in FORBIDDEN_SNIPPETS:
         assert snippet not in text, snippet
