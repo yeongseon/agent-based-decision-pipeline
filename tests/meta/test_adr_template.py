@@ -28,35 +28,37 @@ FORBIDDEN_REPO_SPECIFIC_SNIPPETS = (
 )
 
 
+def _read_template_text() -> str:
+    assert TEMPLATE_PATH.is_file(), TEMPLATE_PATH
+    return TEMPLATE_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
+    start = 0
+    for snippet in snippets:
+        index = text.find(snippet, start)
+        assert index >= 0, snippet
+        start = index + len(snippet)
+
+
 def test_adr_template_file_exists() -> None:
     assert TEMPLATE_PATH.is_file()
 
 
 def test_adr_template_file_declares_expected_sections_and_stays_short() -> None:
-    assert TEMPLATE_PATH.is_file(), TEMPLATE_PATH
-    template_text = TEMPLATE_PATH.read_text(encoding="utf-8")
+    template_text = _read_template_text()
 
     assert EXPECTED_TITLE in template_text
     assert EXPECTED_TEMPLATE_NOTE in template_text
-
-    start = 0
-    for snippet in EXPECTED_SECTION_HEADINGS:
-        index = template_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(template_text, EXPECTED_SECTION_HEADINGS)
 
     assert len(template_text.splitlines()) < MAX_TEMPLATE_LINES
 
 
 def test_adr_template_file_is_generic_and_contains_only_placeholder_content() -> None:
-    assert TEMPLATE_PATH.is_file(), TEMPLATE_PATH
-    template_text = TEMPLATE_PATH.read_text(encoding="utf-8")
+    template_text = _read_template_text()
 
-    start = 0
-    for snippet in EXPECTED_PLACEHOLDER_SNIPPETS:
-        index = template_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(template_text, EXPECTED_PLACEHOLDER_SNIPPETS)
 
     lowered_template_text = template_text.lower()
     for snippet in FORBIDDEN_REPO_SPECIFIC_SNIPPETS:
