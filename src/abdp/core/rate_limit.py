@@ -34,23 +34,21 @@ type Clock = Callable[[], float]
 _MIN_MAX_CALLS: Final[int] = 1
 
 
-def _validate_max_calls(max_calls: int) -> None:
+def _validate_init(
+    max_calls: int,
+    window_seconds: float,
+    clock: Clock,
+) -> None:
     if isinstance(max_calls, bool) or not isinstance(max_calls, int):
         raise TypeError(f"max_calls must be an int, got {type(max_calls).__name__}")
     if max_calls < _MIN_MAX_CALLS:
         raise ValueError(f"max_calls must be at least 1, got {max_calls}")
-
-
-def _validate_window_seconds(window_seconds: float) -> None:
     if isinstance(window_seconds, bool) or not isinstance(window_seconds, Real):
         raise TypeError(f"window_seconds must be a real number, got {type(window_seconds).__name__}")
     if not math.isfinite(window_seconds):
         raise ValueError(f"window_seconds must be finite, got {window_seconds}")
     if window_seconds <= 0:
         raise ValueError(f"window_seconds must be positive, got {window_seconds}")
-
-
-def _validate_clock(clock: Clock) -> None:
     if not callable(clock):
         raise TypeError("clock must be callable")
 
@@ -72,26 +70,22 @@ class FixedWindowRateLimiter:
         window_seconds: float,
         clock: Clock = time.monotonic,
     ) -> None:
-        _validate_max_calls(max_calls)
-        _validate_window_seconds(window_seconds)
-        _validate_clock(clock)
+        _validate_init(max_calls, window_seconds, clock)
         self._max_calls: Final[int] = max_calls
         self._window_seconds: Final[float] = float(window_seconds)
         self._clock: Final[Clock] = clock
         self._last_now: float | None = None
-        self._window_index: int | None = None
-        self._used_calls: int = 0
+        self._state: tuple[int, int] | None = None
 
     def allow(self) -> bool:
         now = _validate_clock_reading(self._clock())
         if self._last_now is not None and now < self._last_now:
             raise RuntimeError("clock must be monotonic non-decreasing")
         index = math.floor(now / self._window_seconds)
-        if self._window_index is None or index != self._window_index:
-            self._window_index = index
-            self._used_calls = 0
+        used = self._state[1] if self._state is not None and self._state[0] == index else 0
         self._last_now = now
-        if self._used_calls < self._max_calls:
-            self._used_calls += 1
+        if used < self._max_calls:
+            self._state = (index, used + 1)
             return True
+        self._state = (index, used)
         return False
