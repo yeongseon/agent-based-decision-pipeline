@@ -10,3 +10,14 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.0.0",
+    "hypothesis>=6.0.0",
+    "mutmut>=3.0.0",
+    "mypy>=1.20.1",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.15.11",
+]
