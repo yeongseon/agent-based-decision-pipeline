@@ -45,24 +45,27 @@ def test_validate_seed_accepts_uint32_bounds() -> None:
 
 
 def test_validate_seed_rejects_negative_integers() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"Seed must be >= 0, got -1"):
         validate_seed(-1)
 
 
 def test_validate_seed_rejects_values_above_uint32_max() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=rf"Seed must be <= {UINT32_MAX}, got {UINT32_MAX + 1}"):
         validate_seed(UINT32_MAX + 1)
 
 
-@pytest.mark.parametrize("value", ["1", 1.0, None, object(), [0]])
-def test_validate_seed_rejects_non_integer_inputs(value: object) -> None:
-    with pytest.raises(TypeError):
+@pytest.mark.parametrize(
+    ("value", "type_name"),
+    [("1", "str"), (1.0, "float"), (None, "NoneType"), (object(), "object"), ([0], "list")],
+)
+def test_validate_seed_rejects_non_integer_inputs(value: object, type_name: str) -> None:
+    with pytest.raises(TypeError, match=rf"Seed must be a non-bool int, got {type_name}"):
         validate_seed(value)
 
 
 @pytest.mark.parametrize("value", [True, False])
 def test_validate_seed_rejects_bool_values(value: bool) -> None:
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match=r"Seed must be a non-bool int, got bool"):
         validate_seed(value)
 
 
