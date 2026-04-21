@@ -133,3 +133,28 @@ def test_is_json_value_accepts_nested_valid_structure() -> None:
 def test_is_json_value_rejects_nested_invalid_structure() -> None:
     nested: object = {"a": [1, 2, {"b": None, "c": [True, "x", float("inf")]}]}
     assert is_json_value(nested) is False
+
+
+def test_is_json_value_rejects_self_referential_list() -> None:
+    cyclic: list[object] = []
+    cyclic.append(cyclic)
+    assert is_json_value(cyclic) is False
+
+
+def test_is_json_value_rejects_self_referential_dict() -> None:
+    cyclic: dict[str, object] = {}
+    cyclic["self"] = cyclic
+    assert is_json_value(cyclic) is False
+
+
+def test_is_json_value_rejects_indirect_cycle_between_list_and_dict() -> None:
+    outer: list[object] = []
+    inner: dict[str, object] = {"back": outer}
+    outer.append(inner)
+    assert is_json_value(outer) is False
+
+
+def test_is_json_value_accepts_acyclic_shared_substructure() -> None:
+    shared: dict[str, object] = {"x": 1, "y": [True, None, "ok"]}
+    assert is_json_value([shared, shared]) is True
+    assert is_json_value({"a": shared, "b": shared}) is True

@@ -38,6 +38,10 @@ def validate_seed(value: object) -> Seed:
 
 
 def is_json_value(obj: object) -> TypeGuard[JsonValue]:
+    return _is_json_value(obj, set())
+
+
+def _is_json_value(obj: object, ancestors: set[int]) -> bool:
     if obj is None:
         return True
     if isinstance(obj, bool):
@@ -49,7 +53,21 @@ def is_json_value(obj: object) -> TypeGuard[JsonValue]:
     if isinstance(obj, float):
         return math.isfinite(obj)
     if isinstance(obj, list):
-        return all(is_json_value(item) for item in obj)
+        obj_id = id(obj)
+        if obj_id in ancestors:
+            return False
+        ancestors.add(obj_id)
+        try:
+            return all(_is_json_value(item, ancestors) for item in obj)
+        finally:
+            ancestors.discard(obj_id)
     if isinstance(obj, dict):
-        return all(isinstance(key, str) and is_json_value(value) for key, value in obj.items())
+        obj_id = id(obj)
+        if obj_id in ancestors:
+            return False
+        ancestors.add(obj_id)
+        try:
+            return all(isinstance(key, str) and _is_json_value(value, ancestors) for key, value in obj.items())
+        finally:
+            ancestors.discard(obj_id)
     return False
