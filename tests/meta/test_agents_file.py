@@ -48,39 +48,37 @@ EXPECTED_STANDARD_CHECKLIST = (
 )
 
 
+def _read_agents_text() -> str:
+    assert AGENTS_PATH.is_file(), AGENTS_PATH
+    return AGENTS_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
+    start = 0
+    for snippet in snippets:
+        index = text.find(snippet, start)
+        assert index >= 0, snippet
+        start = index + len(snippet)
+
+
 def test_agents_file_exists() -> None:
     assert AGENTS_PATH.is_file()
 
 
 def test_agents_file_declares_required_sections() -> None:
-    assert AGENTS_PATH.is_file(), AGENTS_PATH
-    agents_text = AGENTS_PATH.read_text(encoding="utf-8")
+    agents_text = _read_agents_text()
 
     assert EXPECTED_TITLE in agents_text
-    start = 0
-    for snippet in EXPECTED_SECTION_HEADINGS:
-        index = agents_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(agents_text, EXPECTED_SECTION_HEADINGS)
 
 
 def test_agents_file_declares_oracle_first_rules_and_repo_constraints() -> None:
-    assert AGENTS_PATH.is_file(), AGENTS_PATH
-    agents_text = AGENTS_PATH.read_text(encoding="utf-8")
+    agents_text = _read_agents_text()
 
-    start = 0
-    for snippet in EXPECTED_RULE_SNIPPETS:
-        index = agents_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(agents_text, EXPECTED_RULE_SNIPPETS)
 
 
 def test_agents_file_declares_standard_v0_1_checklist() -> None:
-    assert AGENTS_PATH.is_file(), AGENTS_PATH
-    agents_text = AGENTS_PATH.read_text(encoding="utf-8")
+    agents_text = _read_agents_text()
 
-    start = 0
-    for snippet in EXPECTED_STANDARD_CHECKLIST:
-        index = agents_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(agents_text, EXPECTED_STANDARD_CHECKLIST)
