@@ -103,13 +103,25 @@ EXPECTED_STEP_BLOCKS = (
 )
 
 
+def _read_workflow_text() -> str:
+    assert WORKFLOW_PATH.is_file(), WORKFLOW_PATH
+    return WORKFLOW_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
+    start = 0
+    for snippet in snippets:
+        index = text.find(snippet, start)
+        assert index >= 0, snippet
+        start = index + len(snippet)
+
+
 def test_ci_workflow_file_exists() -> None:
     assert WORKFLOW_PATH.is_file()
 
 
 def test_ci_workflow_declares_expected_top_level_configuration() -> None:
-    assert WORKFLOW_PATH.is_file()
-    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
+    workflow_text = _read_workflow_text()
 
     assert EXPECTED_WORKFLOW_HEADER in workflow_text
     assert EXPECTED_TRIGGER_BLOCK in workflow_text
@@ -119,11 +131,6 @@ def test_ci_workflow_declares_expected_top_level_configuration() -> None:
 
 
 def test_ci_workflow_declares_required_steps_in_order() -> None:
-    assert WORKFLOW_PATH.is_file()
-    workflow_text = WORKFLOW_PATH.read_text(encoding="utf-8")
+    workflow_text = _read_workflow_text()
 
-    start = 0
-    for snippet in EXPECTED_STEP_BLOCKS:
-        index = workflow_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(workflow_text, EXPECTED_STEP_BLOCKS)
