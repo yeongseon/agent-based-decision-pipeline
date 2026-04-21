@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import math
+from fractions import Fraction
 from typing import cast
 
 import pytest
@@ -88,6 +89,11 @@ def test_constructor_rejects_non_real_window_seconds() -> None:
         FixedWindowRateLimiter(max_calls=1, window_seconds=cast(float, None))
 
 
+def test_constructor_rejects_fraction_window_seconds() -> None:
+    with pytest.raises(TypeError, match=r"^window_seconds must be a real number, got Fraction$"):
+        FixedWindowRateLimiter(max_calls=1, window_seconds=cast(float, Fraction(1, 2)))
+
+
 def test_constructor_rejects_bool_window_seconds() -> None:
     with pytest.raises(TypeError, match=r"^window_seconds must be a real number, got bool$"):
         FixedWindowRateLimiter(max_calls=1, window_seconds=cast(float, True))
@@ -146,6 +152,16 @@ def test_allow_rejects_non_real_clock_reading() -> None:
         clock=cast(Clock, lambda: "not a number"),
     )
     with pytest.raises(TypeError, match=r"^clock must return a real number, got str$"):
+        limiter.allow()
+
+
+def test_allow_rejects_fraction_clock_reading() -> None:
+    limiter = FixedWindowRateLimiter(
+        max_calls=1,
+        window_seconds=1.0,
+        clock=cast(Clock, lambda: Fraction(1, 3)),
+    )
+    with pytest.raises(TypeError, match=r"^clock must return a real number, got Fraction$"):
         limiter.allow()
 
 

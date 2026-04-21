@@ -24,7 +24,6 @@ from __future__ import annotations
 import math
 import time
 from collections.abc import Callable
-from numbers import Real
 from typing import Final
 
 __all__ = ["Clock", "FixedWindowRateLimiter"]
@@ -43,7 +42,7 @@ def _validate_init(
         raise TypeError(f"max_calls must be an int, got {type(max_calls).__name__}")
     if max_calls < _MIN_MAX_CALLS:
         raise ValueError(f"max_calls must be at least 1, got {max_calls}")
-    if isinstance(window_seconds, bool) or not isinstance(window_seconds, Real):
+    if isinstance(window_seconds, bool) or not isinstance(window_seconds, int | float):
         raise TypeError(f"window_seconds must be a real number, got {type(window_seconds).__name__}")
     if not math.isfinite(window_seconds):
         raise ValueError(f"window_seconds must be finite, got {window_seconds}")
@@ -54,7 +53,7 @@ def _validate_init(
 
 
 def _validate_clock_reading(now: object) -> float:
-    if isinstance(now, bool) or not isinstance(now, Real):
+    if isinstance(now, bool) or not isinstance(now, int | float):
         raise TypeError(f"clock must return a real number, got {type(now).__name__}")
     value = float(now)
     if not math.isfinite(value):
