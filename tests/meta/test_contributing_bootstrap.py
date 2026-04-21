@@ -36,53 +36,54 @@ EXPECTED_STANDARD_CHECKLIST = (
 )
 
 
+def _read_contributing_text() -> str:
+    assert CONTRIBUTING_PATH.is_file(), CONTRIBUTING_PATH
+    return CONTRIBUTING_PATH.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
+    start = 0
+    for snippet in snippets:
+        index = text.find(snippet, start)
+        assert index >= 0, snippet
+        start = index + len(snippet)
+
+
 def test_contributing_file_exists() -> None:
     assert CONTRIBUTING_PATH.is_file()
 
 
 def test_contributing_file_declares_expected_sections_and_stays_short() -> None:
-    assert CONTRIBUTING_PATH.is_file(), CONTRIBUTING_PATH
-    contributing_text = CONTRIBUTING_PATH.read_text(encoding="utf-8")
+    contributing_text = _read_contributing_text()
 
     assert EXPECTED_TITLE in contributing_text
     assert EXPECTED_SHORT_GUIDE_NOTE in contributing_text
-
-    start = 0
-    for snippet in EXPECTED_SECTION_HEADINGS:
-        index = contributing_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(contributing_text, EXPECTED_SECTION_HEADINGS)
 
     assert len(contributing_text.splitlines()) < MAX_GUIDE_LINES
 
 
 def test_contributing_file_declares_small_issue_policy_and_commit_prefixes() -> None:
-    assert CONTRIBUTING_PATH.is_file(), CONTRIBUTING_PATH
-    contributing_text = CONTRIBUTING_PATH.read_text(encoding="utf-8")
+    contributing_text = _read_contributing_text()
 
-    snippets = (
-        EXPECTED_SMALL_ISSUE_POLICY,
-        EXPECTED_SMALL_ISSUE_SPLIT_RULE,
-        EXPECTED_COMMIT_PREFIX_RULE,
+    _assert_snippets_in_order(
+        contributing_text,
+        (
+            EXPECTED_SMALL_ISSUE_POLICY,
+            EXPECTED_SMALL_ISSUE_SPLIT_RULE,
+            EXPECTED_COMMIT_PREFIX_RULE,
+        ),
     )
-    start = 0
-    for snippet in snippets:
-        index = contributing_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
 
 
 def test_contributing_file_declares_oracle_gate_and_standard_v0_1_checklist() -> None:
-    assert CONTRIBUTING_PATH.is_file(), CONTRIBUTING_PATH
-    contributing_text = CONTRIBUTING_PATH.read_text(encoding="utf-8")
+    contributing_text = _read_contributing_text()
 
-    snippets = (
-        EXPECTED_ORACLE_GUIDE_POINTER,
-        EXPECTED_STANDARD_CHECKLIST_INTRO,
-        *EXPECTED_STANDARD_CHECKLIST,
+    _assert_snippets_in_order(
+        contributing_text,
+        (
+            EXPECTED_ORACLE_GUIDE_POINTER,
+            EXPECTED_STANDARD_CHECKLIST_INTRO,
+            *EXPECTED_STANDARD_CHECKLIST,
+        ),
     )
-    start = 0
-    for snippet in snippets:
-        index = contributing_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
