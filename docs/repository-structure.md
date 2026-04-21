@@ -1,6 +1,8 @@
 # Repository structure
 
-This guide fixes the repository layout for ABDP. [docs/architecture.md](architecture.md) is the authority for layer names; `docs/naming.md` and `docs/prd.md` stay authoritative for naming rules and the v0.1 scope boundary.
+This guide fixes the repository layout for ABDP.
+[docs/architecture.md](architecture.md) is the authority for layer names;
+`docs/naming.md` and `docs/prd.md` stay authoritative for naming rules and the v0.1 scope boundary.
 
 ## Current top-level tree
 
