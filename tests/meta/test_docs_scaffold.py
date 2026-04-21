@@ -72,48 +72,47 @@ EXPECTED_SUBSECTION_README_SNIPPETS: tuple[tuple[Path, tuple[str, ...]], ...] = 
 EXPECTED_ADR_TEMPLATE_POINTER = "Start from [0000-template.md](0000-template.md) when writing a new ADR."
 
 
+def _read_text(path: Path) -> str:
+    assert path.is_file(), path
+    return path.read_text(encoding="utf-8")
+
+
+def _assert_snippets_in_order(text: str, snippets: tuple[str, ...]) -> None:
+    start = 0
+    for snippet in snippets:
+        index = text.find(snippet, start)
+        assert index >= 0, snippet
+        start = index + len(snippet)
+
+
 def test_docs_scaffold_files_exist() -> None:
     for path in README_PATHS:
         assert path.is_file(), path
 
 
 def test_docs_index_declares_expected_navigation_and_stays_short() -> None:
-    assert DOCS_INDEX_PATH.is_file(), DOCS_INDEX_PATH
-    docs_index_text = DOCS_INDEX_PATH.read_text(encoding="utf-8")
+    docs_index_text = _read_text(DOCS_INDEX_PATH)
 
-    start = 0
-    for snippet in EXPECTED_DOCS_INDEX_SNIPPETS:
-        index = docs_index_text.find(snippet, start)
-        assert index >= 0, snippet
-        start = index + len(snippet)
+    _assert_snippets_in_order(docs_index_text, EXPECTED_DOCS_INDEX_SNIPPETS)
 
     assert len(docs_index_text.splitlines()) < MAX_README_LINES
 
 
 def test_subsection_readmes_declare_expected_titles() -> None:
     for path, expected_title in EXPECTED_SUBSECTION_TITLES:
-        assert path.is_file(), path
-        readme_text = path.read_text(encoding="utf-8")
-
-        assert expected_title in readme_text
+        assert expected_title in _read_text(path)
 
 
 def test_subsection_readmes_remain_placeholders_and_stay_short() -> None:
     for path, expected_snippets in EXPECTED_SUBSECTION_README_SNIPPETS:
-        assert path.is_file(), path
-        readme_text = path.read_text(encoding="utf-8")
+        readme_text = _read_text(path)
 
-        start = 0
-        for snippet in expected_snippets:
-            index = readme_text.find(snippet, start)
-            assert index >= 0, snippet
-            start = index + len(snippet)
+        _assert_snippets_in_order(readme_text, expected_snippets)
 
         assert len(readme_text.splitlines()) < MAX_README_LINES
 
 
 def test_adr_readme_references_template() -> None:
-    assert ADR_README_PATH.is_file(), ADR_README_PATH
-    adr_readme_text = ADR_README_PATH.read_text(encoding="utf-8")
+    adr_readme_text = _read_text(ADR_README_PATH)
 
     assert EXPECTED_ADR_TEMPLATE_POINTER in adr_readme_text
