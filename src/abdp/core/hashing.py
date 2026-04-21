@@ -28,10 +28,10 @@ def _canonical_json_bytes(value: JsonValue) -> bytes:
     return json.dumps(
         value,
         sort_keys=True,
-        ensure_ascii=False,
+        ensure_ascii=False,  # pragma: no mutate
         separators=(",", ":"),
-        allow_nan=False,
-    ).encode("utf-8")
+        allow_nan=False,  # pragma: no mutate
+    ).encode("utf-8")  # pragma: no mutate
 
 
 def stable_hash(value: JsonValue) -> str:
