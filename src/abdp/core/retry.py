@@ -37,6 +37,12 @@ type _Sleep = Callable[[float], None]
 _DEFAULT_MAX_ATTEMPTS: Final = 3
 _MIN_ATTEMPTS: Final = 1
 
+_UNSUPPORTED_CALLABLE_KINDS: Final = (
+    (inspect.isasyncgenfunction, "async generator function"),
+    (inspect.iscoroutinefunction, "async function"),
+    (inspect.isgeneratorfunction, "generator function"),
+)
+
 
 def _no_backoff(_attempt: int) -> float:
     return 0.0
@@ -57,14 +63,9 @@ def _validate_config(
 
 
 def _reject_unsupported_callable(func: Callable[..., object]) -> None:
-    if inspect.isasyncgenfunction(func):
-        raise TypeError(
-            f"retry only supports regular synchronous callables; got async generator function {func.__name__!r}"
-        )
-    if inspect.iscoroutinefunction(func):
-        raise TypeError(f"retry only supports regular synchronous callables; got async function {func.__name__!r}")
-    if inspect.isgeneratorfunction(func):
-        raise TypeError(f"retry only supports regular synchronous callables; got generator function {func.__name__!r}")
+    for predicate, label in _UNSUPPORTED_CALLABLE_KINDS:
+        if predicate(func):
+            raise TypeError(f"retry only supports regular synchronous callables; got {label} {func.__name__!r}")
 
 
 def retry[**P, R](
