@@ -201,4 +201,17 @@ def test_make_claim_record_changes_id_when_evidence_ids_reorder() -> None:
         }
     )
     assert a.claim_id != b.claim_id
-    assert rec.claim_id == UUID("00000000-0000-0000-0000-000000000000") or isinstance(rec.claim_id, UUID)
+
+
+def test_make_claim_record_pins_golden_vector() -> None:
+    rec = make_claim_record(
+        seed=Seed(42),
+        statement="risk-acceptable",
+        evidence_ids=(
+            UUID("11111111-1111-1111-1111-111111111111"),
+            UUID("22222222-2222-2222-2222-222222222222"),
+        ),
+        confidence=0.75,
+        metadata={"k": "v"},
+    )
+    assert rec.claim_id == UUID("b5d6768f-02c4-5b3e-a393-f1fc4d43a4ba")
