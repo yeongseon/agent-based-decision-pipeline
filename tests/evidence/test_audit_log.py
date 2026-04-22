@@ -30,9 +30,12 @@ def _state() -> SimulationState[SegmentState, ParticipantState, ActionProposal]:
     )
 
 
+_DEFAULT_SEED: Seed = Seed(0)
+
+
 def _run(
     scenario_key: str = "k",
-    seed: Seed = Seed(0),
+    seed: Seed = _DEFAULT_SEED,
 ) -> ScenarioRun[SegmentState, ParticipantState, ActionProposal]:
     return ScenarioRun[SegmentState, ParticipantState, ActionProposal](
         scenario_key=scenario_key,
