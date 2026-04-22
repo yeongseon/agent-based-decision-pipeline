@@ -1,3 +1,5 @@
+"""Action resolver protocol for the abdp scenario package."""
+
 from typing import Protocol, runtime_checkable
 
 from abdp.simulation.action_proposal import ActionProposal
