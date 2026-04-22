@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import abdp.agents
+from abdp.agents.context import AgentContext as SourceAgentContext
 from abdp.agents.decision import AgentDecision as SourceAgentDecision
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("AgentDecision",)
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("AgentContext", "AgentDecision")
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "AgentContext": SourceAgentContext,
     "AgentDecision": SourceAgentDecision,
 }
 
-REPRESENTATIVE_INTERNAL_NAMES: list[str] = ["decision"]
+REPRESENTATIVE_INTERNAL_NAMES: list[str] = ["context", "decision"]
 
 
 def test_agents_package_all_lists_exact_expected_symbols() -> None:
@@ -17,6 +19,7 @@ def test_agents_package_all_lists_exact_expected_symbols() -> None:
 
 
 def test_agents_package_exposes_each_listed_symbol_with_source_identity() -> None:
+    assert abdp.agents.AgentContext is EXPECTED_SOURCE_IDENTITY["AgentContext"]
     assert abdp.agents.AgentDecision is EXPECTED_SOURCE_IDENTITY["AgentDecision"]
 
 
