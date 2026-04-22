@@ -17,7 +17,13 @@ __all__ = ["Metric", "MetricResult"]
 
 @dataclass(frozen=True, slots=True)
 class MetricResult:
-    """Outcome of evaluating a single :class:`Metric` against a run."""
+    """Outcome of evaluating a single :class:`Metric` against a run.
+
+    ``value`` and ``details`` MUST be JSON-serializable. Callers can verify
+    a candidate ``value`` with :func:`abdp.core.types.is_json_value` before
+    constructing the result; the dataclass itself does not enforce this so
+    that ``MetricResult`` stays cheap to build inside hot evaluation loops.
+    """
 
     metric_id: str
     value: JsonValue
