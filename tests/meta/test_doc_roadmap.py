@@ -7,7 +7,7 @@ ARCHITECTURE_REFERENCE = "[docs/architecture.md](architecture.md)"
 AGENT_MODEL_REFERENCE = "[docs/models/agent-model.md](models/agent-model.md)"
 EVALUATION_REFERENCE = "[docs/evaluation.md](evaluation.md)"
 EVIDENCE_REPORTING_REFERENCE = "[docs/evidence-reporting.md](evidence-reporting.md)"
-MAX_LINE_COUNT = 90
+MAX_LINE_COUNT = 130
 
 REQUIRED_HEADINGS: list[str] = [
     "## Scope and non-goals overview",
@@ -16,6 +16,8 @@ REQUIRED_HEADINGS: list[str] = [
     "## v0.2 modeling toolkit boundary",
     "## Explicit non-goals for v0.2",
     "## v0.3 milestone themes",
+    "## v0.3 milestone scope",
+    "## Explicit non-goals for v0.3",
     "## Explicit non-goals for v0.1",
     "## Revisit triggers for more complex infrastructure",
 ]
@@ -78,6 +80,45 @@ SECTION_ANCHORS: dict[str, list[str]] = {
         "No CLI entry point, run command, or report command belongs in `v0.2`; that work is reserved for `v0.3`.",
         "No persistence backends or storage adapters belong in `v0.2`; the in-memory toolkit must remain sufficient.",
         "No domain-specific code belongs under `src/abdp/**`; domain logic lives only in `examples/` and tests.",
+    ],
+    "## v0.3 milestone scope": [
+        "`v0.3` milestone delivers the auditable simulation surface",
+        "`#106`",
+        "`#107`",
+        "`#108`",
+        "`#109`",
+        "`#110`",
+        "`#111`",
+        "`#112`",
+        "`#113`",
+        "`#114`",
+        "`#115`",
+        "`#116`",
+        "`#117`",
+        "`#118`",
+        "`#119`",
+        "`#120`",
+        "`#121`",
+        "`#122`",
+        "`#123`",
+        "`#124`",
+        "`#125`",
+        'Reserved evidence keys: `evidence_key="selected_proposal"`',
+    ],
+    "## Explicit non-goals for v0.3": [
+        (
+            "No remote storage, network adapters, or hosted services belong in `v0.3`; "
+            "the in-memory evidence store remains the reference."
+        ),
+        (
+            "No plugin system, dynamic discovery, or external entry-point registration "
+            "belongs in `v0.3`; CLI loaders use explicit import paths only."
+        ),
+        "No web UI, dashboard, browser viewer, or HTML output belongs in `v0.3`; reporting stays JSON and Markdown.",
+        (
+            "No domain-specific code belongs under `src/abdp/**` in `v0.3`; "
+            "example audit flows live only in `examples/` and `tests/`."
+        ),
     ],
     "## Explicit non-goals for v0.1": [
         "No implementation work beyond layers 1-3 belongs in `v0.1`; that includes layers 4, 6, 7, and 8.",
