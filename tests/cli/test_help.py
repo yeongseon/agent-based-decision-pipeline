@@ -79,3 +79,9 @@ def test_python_dash_m_abdp_cli_help_exits_zero() -> None:
     assert result.returncode == 0
     assert "run" in result.stdout
     assert "report" in result.stdout
+
+
+def test_top_level_main_module_re_exports_main() -> None:
+    import abdp.__main__ as top_main
+
+    assert top_main.main is main
