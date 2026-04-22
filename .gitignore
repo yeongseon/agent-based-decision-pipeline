@@ -16,3 +16,6 @@ __pycache__/
 # Build artifacts
 build/
 dist/
+
+# Editable install metadata
+*.egg-info/
