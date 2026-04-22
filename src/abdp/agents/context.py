@@ -1,3 +1,5 @@
+"""Public ``AgentContext`` model exposed by ``abdp.agents``."""
+
 from dataclasses import dataclass
 
 from abdp.core import Seed
@@ -8,10 +10,10 @@ __all__ = ["AgentContext"]
 
 @dataclass(frozen=True, slots=True)
 class AgentContext[S: SegmentState, P: ParticipantState, A: ActionProposal]:
-    """Read-only snapshot passed to ``Agent.decide`` for one step.
+    """Immutable agent-scoped view of a single scenario step.
 
-    Carries the deterministic seed, current simulation state, and identifiers
-    that scope an agent's decision within a scenario step.
+    Packages the scenario identifier, agent identifier, step index, seed, and
+    simulation state needed for one ``Agent.decide`` call.
     """
 
     scenario_key: str
