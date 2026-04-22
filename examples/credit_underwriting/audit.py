@@ -126,20 +126,17 @@ class _CoverageGate:
     gate_id: str = _COVERAGE_GATE_ID
 
     def evaluate(self, metrics: Iterable[MetricResult]) -> GateResult:
-        lookup = {m.metric_id: m.value for m in metrics}
-        decision = lookup.get(_DECISION_STEP_METRIC_ID)
-        selected = lookup.get(_SELECTED_EVIDENCE_METRIC_ID)
-        passed = isinstance(decision, int) and isinstance(selected, int) and decision == selected and decision > 0
-        status = GateStatus.PASS if passed else GateStatus.FAIL
-        reason = (
-            "selected_proposal evidence covers every decision step"
-            if passed
-            else "selected_proposal evidence does not cover all decision steps"
-        )
+        decision = _int_metric(metrics, _DECISION_STEP_METRIC_ID)
+        selected = _int_metric(metrics, _SELECTED_EVIDENCE_METRIC_ID)
+        passed = decision is not None and selected is not None and decision == selected and decision > 0
         return GateResult(
             gate_id=self.gate_id,
-            status=status,
-            reason=reason,
+            status=GateStatus.PASS if passed else GateStatus.FAIL,
+            reason=(
+                "selected_proposal evidence covers every decision step"
+                if passed
+                else "selected_proposal evidence does not cover all decision steps"
+            ),
             details={"decision_steps": decision, "selected_evidence": selected},
         )
 
@@ -149,17 +146,23 @@ class _TerminalPendingGate:
     gate_id: str = _TERMINAL_PENDING_GATE_ID
 
     def evaluate(self, metrics: Iterable[MetricResult]) -> GateResult:
-        lookup = {m.metric_id: m.value for m in metrics}
-        pending = lookup.get(_TERMINAL_PENDING_METRIC_ID)
-        passed = isinstance(pending, int) and pending == 0
-        status = GateStatus.PASS if passed else GateStatus.FAIL
-        reason = "terminal state has no pending actions" if passed else "terminal state still carries pending actions"
+        pending = _int_metric(metrics, _TERMINAL_PENDING_METRIC_ID)
+        passed = pending == 0
         return GateResult(
             gate_id=self.gate_id,
-            status=status,
-            reason=reason,
+            status=GateStatus.PASS if passed else GateStatus.FAIL,
+            reason=(
+                "terminal state has no pending actions" if passed else "terminal state still carries pending actions"
+            ),
             details={"terminal_pending_actions": pending},
         )
+
+
+def _int_metric(metrics: Iterable[MetricResult], metric_id: str) -> int | None:
+    for metric in metrics:
+        if metric.metric_id == metric_id and isinstance(metric.value, int):
+            return metric.value
+    return None
 
 
 def _build_metrics(
