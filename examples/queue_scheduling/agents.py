@@ -26,10 +26,13 @@ class QueueWorkerAgent(Agent[Slot, Worker, QueueProposal]):
         self,
         context: AgentContext[Slot, Worker, QueueProposal],
     ) -> AgentDecision[QueueProposal]:
-        heartbeat = QueueProposal(
-            proposal_id=f"heartbeat-{self.queue_id}-step{context.step_index}",
+        heartbeat = self._build_heartbeat(context.step_index)
+        return WorkerDecision(agent_id=self.agent_id, proposals=(heartbeat,))
+
+    def _build_heartbeat(self, step_index: int) -> QueueProposal:
+        return QueueProposal(
+            proposal_id=f"heartbeat-{self.queue_id}-step{step_index}",
             actor_id=self.agent_id,
             action_key="heartbeat",
-            payload={"queue_id": self.queue_id, "step_index": context.step_index},
+            payload={"queue_id": self.queue_id, "step_index": step_index},
         )
-        return WorkerDecision(agent_id=self.agent_id, proposals=(heartbeat,))

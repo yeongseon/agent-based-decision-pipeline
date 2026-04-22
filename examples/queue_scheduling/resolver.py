@@ -19,9 +19,12 @@ class QueueResolver(ActionResolver[Slot, Worker, QueueProposal]):
         state: SimulationState[Slot, Worker, QueueProposal],
         proposals: tuple[QueueProposal, ...],
     ) -> SimulationState[Slot, Worker, QueueProposal]:
-        for proposal in proposals:
-            if proposal.action_key not in HANDLED_ACTION_KEYS:
-                raise ValueError(f"Unknown action_key: {proposal.action_key}")
+        unknown = next(
+            (p.action_key for p in proposals if p.action_key not in HANDLED_ACTION_KEYS),
+            None,
+        )
+        if unknown is not None:
+            raise ValueError(f"Unknown action_key: {unknown}")
         return SimulationState[Slot, Worker, QueueProposal](
             step_index=state.step_index + 1,
             seed=state.seed,
