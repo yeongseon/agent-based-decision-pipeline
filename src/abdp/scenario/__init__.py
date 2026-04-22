@@ -1,3 +1,5 @@
+"""Public scenario-runner contracts exported by ``abdp.scenario``."""
+
 from abdp.scenario.resolver import ActionResolver
 from abdp.scenario.run import ScenarioRun
 from abdp.scenario.runner import ScenarioRunner
