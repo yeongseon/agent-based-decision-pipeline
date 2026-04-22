@@ -33,16 +33,20 @@ def load_audit_log_factory(spec: str) -> _AuditLogFactory:
 
 def _parse_spec(spec: str) -> tuple[str, str]:
     if not isinstance(spec, str) or spec != spec.strip() or ":" not in spec:
-        raise LoaderError(f"Invalid loader spec {spec!r}: expected 'module.path:callable' format.")
+        raise LoaderError(_invalid_spec(spec, "expected 'module.path:callable' format"))
     parts = spec.split(":")
     if len(parts) != 2:
-        raise LoaderError(f"Invalid loader spec {spec!r}: expected exactly one ':' separator.")
+        raise LoaderError(_invalid_spec(spec, "expected exactly one ':' separator"))
     module_name, attr_name = parts
     if not module_name or not attr_name:
-        raise LoaderError(f"Invalid loader spec {spec!r}: module and callable parts must be non-empty.")
+        raise LoaderError(_invalid_spec(spec, "module and callable parts must be non-empty"))
     if module_name != module_name.strip() or attr_name != attr_name.strip():
-        raise LoaderError(f"Invalid loader spec {spec!r}: module and callable parts must not contain whitespace.")
+        raise LoaderError(_invalid_spec(spec, "module and callable parts must not contain whitespace"))
     return module_name, attr_name
+
+
+def _invalid_spec(spec: object, reason: str) -> str:
+    return f"Invalid loader spec {spec!r}: {reason}."
 
 
 def _resolve_callable(module_name: str, attr_name: str) -> Callable[..., object]:
