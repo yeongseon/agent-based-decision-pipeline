@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ROADMAP_PATH = REPO_ROOT / "docs" / "roadmap.md"
 
@@ -49,26 +51,24 @@ def test_roadmap_has_v03_section_heading() -> None:
     assert "## v0.3 milestone scope" in _read_roadmap_body()
 
 
-def test_roadmap_v03_section_lists_all_twenty_issue_numbers() -> None:
-    body = _read_roadmap_body()
-    for number in V03_ISSUE_NUMBERS:
-        assert f"#{number}" in body, f"missing roadmap entry for #{number}"
+@pytest.mark.parametrize("number", V03_ISSUE_NUMBERS)
+def test_roadmap_v03_section_lists_issue_number(number: int) -> None:
+    assert f"#{number}" in _read_roadmap_body()
 
 
-def test_roadmap_v03_each_issue_has_individual_bullet_with_one_line_goal() -> None:
+@pytest.mark.parametrize("number", V03_ISSUE_NUMBERS)
+def test_roadmap_v03_each_issue_has_individual_bullet_with_one_line_goal(number: int) -> None:
     bullets = _bullet_lines_by_issue()
-    for number in V03_ISSUE_NUMBERS:
-        assert number in bullets, f"issue #{number} must have its own '- `#{number}` — `<title>`: <goal>.' bullet"
-        match = ISSUE_BULLET_PATTERN.match(bullets[number])
-        assert match is not None
-        goal = match.group("goal").strip()
-        assert len(goal) >= 10, f"issue #{number} goal text is too short: {goal!r}"
+    assert number in bullets, f"issue #{number} must have its own '- `#{number}` — `<title>`: <goal>.' bullet"
+    match = ISSUE_BULLET_PATTERN.match(bullets[number])
+    assert match is not None
+    goal = match.group("goal").strip()
+    assert len(goal) >= 10, f"issue #{number} goal text is too short: {goal!r}"
 
 
-def test_roadmap_v03_section_mentions_each_v03_area() -> None:
-    body = _read_roadmap_body()
-    for area in REQUIRED_AREA_HEADINGS:
-        assert area in body, f"missing v0.3 area: {area}"
+@pytest.mark.parametrize("area", REQUIRED_AREA_HEADINGS)
+def test_roadmap_v03_section_mentions_v03_area(area: str) -> None:
+    assert area in _read_roadmap_body(), f"missing v0.3 area: {area}"
 
 
 def test_roadmap_reserves_selected_proposal_evidence_key() -> None:
@@ -77,8 +77,10 @@ def test_roadmap_reserves_selected_proposal_evidence_key() -> None:
     assert "Reserved evidence keys" in body or "reserved evidence key" in body
 
 
-def test_roadmap_v03_section_has_non_goals_subsection() -> None:
-    body = _read_roadmap_body()
-    assert "## Explicit non-goals for v0.3" in body
-    for term in NON_GOAL_TERMS:
-        assert term in body, f"missing v0.3 non-goal term: {term}"
+def test_roadmap_v03_section_has_non_goals_subsection_heading() -> None:
+    assert "## Explicit non-goals for v0.3" in _read_roadmap_body()
+
+
+@pytest.mark.parametrize("term", NON_GOAL_TERMS)
+def test_roadmap_v03_non_goals_subsection_lists_term(term: str) -> None:
+    assert term in _read_roadmap_body(), f"missing v0.3 non-goal term: {term}"
