@@ -13,6 +13,8 @@ Determinism rules:
 * values typed as the simulation generic protocols (``ActionProposal``,
   ``SegmentState``, ``ParticipantState``, ``AgentDecision``) are projected
   to their protocol attributes only; extra dataclass fields are dropped.
+* ``indent`` must be a non-bool ``int``; cyclic inputs are rejected with
+  a deterministic ``ValueError`` rather than ``RecursionError``.
 """
 
 import dataclasses
@@ -33,7 +35,9 @@ __all__ = ["render_json_report"]
 
 def render_json_report(value: Any, *, indent: int = 2) -> str:
     """Render ``value`` to a deterministic JSON string."""
-    payload = _to_jsonable(value)
+    if isinstance(indent, bool) or not isinstance(indent, int):
+        raise TypeError(f"indent must be int, got {type(indent).__name__}")
+    payload = _to_jsonable(value, _CycleGuard())
     return json.dumps(
         payload,
         indent=indent,
@@ -44,7 +48,25 @@ def render_json_report(value: Any, *, indent: int = 2) -> str:
     )
 
 
-def _to_jsonable(value: Any) -> Any:
+class _CycleGuard:
+    """Tracks visited container ids on the active descent path."""
+
+    __slots__ = ("_active",)
+
+    def __init__(self) -> None:
+        self._active: set[int] = set()
+
+    def enter(self, value: Any) -> None:
+        oid = id(value)
+        if oid in self._active:
+            raise ValueError(f"cyclic reference detected while serializing {type(value).__name__}")
+        self._active.add(oid)
+
+    def leave(self, value: Any) -> None:
+        self._active.discard(id(value))
+
+
+def _to_jsonable(value: Any, guard: _CycleGuard) -> Any:
     if value is None or isinstance(value, bool):
         return value
     if isinstance(value, int):
@@ -62,14 +84,30 @@ def _to_jsonable(value: Any) -> Any:
     if isinstance(value, datetime):
         return _serialize_datetime(value)
     if isinstance(value, (tuple, list)):
-        return [_to_jsonable(item) for item in value]
+        guard.enter(value)
+        try:
+            return [_to_jsonable(item, guard) for item in value]
+        finally:
+            guard.leave(value)
     if isinstance(value, dict):
-        return _serialize_mapping(value)
+        guard.enter(value)
+        try:
+            return _serialize_mapping(value, guard)
+        finally:
+            guard.leave(value)
     for proto, attrs in _PROTOCOL_PROJECTIONS:
         if isinstance(value, proto):
-            return {attr: _to_jsonable(getattr(value, attr)) for attr in attrs}
+            guard.enter(value)
+            try:
+                return {attr: _to_jsonable(getattr(value, attr), guard) for attr in attrs}
+            finally:
+                guard.leave(value)
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        return _serialize_dataclass(value)
+        guard.enter(value)
+        try:
+            return _serialize_dataclass(value, guard)
+        finally:
+            guard.leave(value)
     raise TypeError(f"cannot serialize value of type {type(value).__name__}")
 
 
@@ -80,17 +118,17 @@ def _serialize_datetime(value: datetime) -> str:
     return value.isoformat()
 
 
-def _serialize_mapping(value: dict[Any, Any]) -> dict[str, Any]:
+def _serialize_mapping(value: dict[Any, Any], guard: _CycleGuard) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for k, v in value.items():
         if not isinstance(k, str):
             raise TypeError(f"dict key must be str, got {type(k).__name__}")
-        out[k] = _to_jsonable(v)
+        out[k] = _to_jsonable(v, guard)
     return out
 
 
-def _serialize_dataclass(value: Any) -> dict[str, Any]:
-    return {f.name: _to_jsonable(getattr(value, f.name)) for f in dataclasses.fields(value)}
+def _serialize_dataclass(value: Any, guard: _CycleGuard) -> dict[str, Any]:
+    return {f.name: _to_jsonable(getattr(value, f.name), guard) for f in dataclasses.fields(value)}
 
 
 _PROTOCOL_PROJECTIONS: tuple[tuple[type, tuple[str, ...]], ...] = (

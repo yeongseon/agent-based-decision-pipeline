@@ -352,3 +352,34 @@ def test_render_json_report_golden_vector() -> None:
         "}"
     )
     assert rendered == expected
+
+
+def test_render_json_report_rejects_non_int_indent() -> None:
+    with pytest.raises(TypeError, match="indent must be int"):
+        render_json_report(_audit(), indent="  ")  # type: ignore[arg-type]
+
+
+def test_render_json_report_rejects_bool_indent() -> None:
+    with pytest.raises(TypeError, match="indent must be int"):
+        render_json_report(_audit(), indent=True)
+
+
+def test_render_json_report_rejects_cyclic_list() -> None:
+    cycle: list[Any] = []
+    cycle.append(cycle)
+    with pytest.raises(ValueError, match="cyclic reference"):
+        render_json_report(cycle)
+
+
+def test_render_json_report_rejects_cyclic_dict() -> None:
+    cycle: dict[str, Any] = {}
+    cycle["self"] = cycle
+    with pytest.raises(ValueError, match="cyclic reference"):
+        render_json_report(cycle)
+
+
+def test_render_json_report_allows_shared_acyclic_references() -> None:
+    shared = {"x": 1}
+    parent = {"a": shared, "b": shared}
+    parsed = json.loads(render_json_report(parent))
+    assert parsed == {"a": {"x": 1}, "b": {"x": 1}}
