@@ -1,3 +1,5 @@
+"""Conformance tests for the data storage protocol contract."""
+
 from __future__ import annotations
 
 from typing import assert_type
