@@ -3,11 +3,12 @@
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
 
+from abdp.agents.decision import AgentDecision
 from abdp.core import Seed
 from abdp.evaluation import EvaluationSummary, GateStatus
 from abdp.evaluation.gate import GateResult
@@ -53,7 +54,7 @@ class _Decision:
     """AgentDecision dataclass with an extra field that must be projected away."""
 
     agent_id: str
-    proposals: tuple[_Action, ...]
+    proposals: tuple[ActionProposal, ...]
     extra_decision_field: str = "should-not-appear"
 
 
@@ -171,7 +172,7 @@ def test_render_json_report_rejects_naive_datetime() -> None:
 
     naive = _Wrap(when=datetime(2026, 1, 1))
     with pytest.raises(ValueError, match="UTC"):
-        render_json_report(naive)  # type: ignore[arg-type]
+        render_json_report(naive)
 
 
 def test_render_json_report_rejects_non_utc_datetime() -> None:
@@ -181,7 +182,7 @@ def test_render_json_report_rejects_non_utc_datetime() -> None:
 
     other = _Wrap(when=datetime(2026, 1, 1, tzinfo=timezone(timedelta(hours=9))))
     with pytest.raises(ValueError, match="UTC"):
-        render_json_report(other)  # type: ignore[arg-type]
+        render_json_report(other)
 
 
 def test_render_json_report_serializes_tuple_as_list() -> None:
@@ -246,10 +247,11 @@ def test_render_json_report_projects_agent_decision_protocol_only() -> None:
     action = _Action(proposal_id="p", actor_id="a", action_key="k", payload=None)
     decision = _Decision(agent_id="ag", proposals=(action,))
     state = _state(pending_actions=(action,))
+    decisions: tuple[AgentDecision[ActionProposal], ...] = (cast(AgentDecision[ActionProposal], decision),)
     run = _run(
         steps=(
             ScenarioStep[SegmentState, ParticipantState, ActionProposal](
-                state=state, decisions=(decision,), proposals=(action,)
+                state=state, decisions=decisions, proposals=(action,)
             ),
         )
     )
@@ -262,7 +264,7 @@ def test_render_json_report_rejects_unsupported_type() -> None:
         pass
 
     with pytest.raises(TypeError, match="cannot serialize"):
-        render_json_report(Opaque())  # type: ignore[arg-type]
+        render_json_report(Opaque())
 
 
 def test_render_json_report_rejects_non_string_dict_key() -> None:
@@ -271,7 +273,7 @@ def test_render_json_report_rejects_non_string_dict_key() -> None:
         m: dict[Any, Any]
 
     with pytest.raises(TypeError, match="dict key"):
-        render_json_report(_Wrap(m={1: "v"}))  # type: ignore[arg-type]
+        render_json_report(_Wrap(m={1: "v"}))
 
 
 def test_render_json_report_rejects_nan_float() -> None:
@@ -280,7 +282,7 @@ def test_render_json_report_rejects_nan_float() -> None:
         v: float
 
     with pytest.raises(ValueError):
-        render_json_report(_Wrap(v=float("nan")))  # type: ignore[arg-type]
+        render_json_report(_Wrap(v=float("nan")))
 
 
 def test_render_json_report_golden_vector() -> None:
