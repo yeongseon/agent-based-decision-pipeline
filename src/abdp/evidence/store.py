@@ -24,7 +24,14 @@ __all__ = ["EvidenceStore"]
 
 @runtime_checkable
 class EvidenceStore[S: SegmentState, P: ParticipantState, A: ActionProposal](Protocol):
-    """Pluggable persistence contract for evidence and claim records."""
+    """Pluggable persistence contract for evidence and claim records.
+
+    Implementations MUST preserve every record passed to :meth:`record`
+    and :meth:`record_claim` so that subsequent calls to :meth:`evidence`
+    and :meth:`claims` can return them as tuples. Ordering, idempotency,
+    and durability semantics are implementation-defined; deterministic
+    ordering for audit logs is the implementation's responsibility.
+    """
 
     def record(self, record: EvidenceRecord) -> None:
         """Persist ``record`` in the store."""
