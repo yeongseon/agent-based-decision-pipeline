@@ -32,14 +32,14 @@ def _state() -> SimulationState[SegmentState, ParticipantState, ActionProposal]:
     )
 
 
-def build_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
+def _build(seed: Seed, status: GateStatus) -> AuditLog[Any, Any, Any]:
     run = ScenarioRun[SegmentState, ParticipantState, ActionProposal](
         scenario_key="cli-fixture",
         seed=seed,
         steps=(),
         final_state=_state(),
     )
-    summary = EvaluationSummary(metrics=(), gates=(), overall_status=GateStatus.PASS)
+    summary = EvaluationSummary(metrics=(), gates=(), overall_status=status)
     return AuditLog[SegmentState, ParticipantState, ActionProposal](
         scenario_key="cli-fixture",
         seed=seed,
@@ -48,6 +48,18 @@ def build_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
         evidence=(),
         claims=(),
     )
+
+
+def build_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
+    return _build(seed, GateStatus.PASS)
+
+
+def build_warn_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
+    return _build(seed, GateStatus.WARN)
+
+
+def build_fail_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
+    return _build(seed, GateStatus.FAIL)
 
 
 def build_not_audit_log(seed: Seed) -> object:
