@@ -163,11 +163,8 @@ def _simulation_state_from_jsonable(
     data: Any,
 ) -> SimulationState[SegmentState, ParticipantState, ActionProposal]:
     obj = _require_object(data, "simulation state")
-    step_index_raw = _require_field(obj, "step_index")
-    if isinstance(step_index_raw, bool) or not isinstance(step_index_raw, int):
-        raise ReportError("simulation state.step_index must be int")
     return SimulationState[SegmentState, ParticipantState, ActionProposal](
-        step_index=step_index_raw,
+        step_index=_require_int(obj, "step_index", "simulation state.step_index"),
         seed=_require_seed(obj, "seed"),
         snapshot_ref=_snapshot_ref_from_jsonable(_require_field(obj, "snapshot_ref")),
         segments=cast(
@@ -191,7 +188,7 @@ def _snapshot_ref_from_jsonable(data: Any) -> SnapshotRef:
     if tier not in ("bronze", "silver", "gold"):
         raise ReportError(f"snapshot_ref.tier must be bronze/silver/gold, got {tier!r}")
     return SnapshotRef(
-        snapshot_id=_uuid_from_jsonable(_require_field(obj, "snapshot_id"), "snapshot_id"),
+        snapshot_id=_require_uuid(obj, "snapshot_id"),
         tier=cast(Any, tier),
         storage_key=_require_str(obj, "storage_key"),
     )
@@ -237,16 +234,13 @@ def _gate_result_from_jsonable(data: Any) -> GateResult:
 
 def _evidence_record_from_jsonable(data: Any) -> EvidenceRecord:
     obj = _require_object(data, "evidence")
-    step_index_raw = _require_field(obj, "step_index")
-    if isinstance(step_index_raw, bool) or not isinstance(step_index_raw, int):
-        raise ReportError("evidence.step_index must be int")
     return EvidenceRecord(
-        evidence_id=_uuid_from_jsonable(_require_field(obj, "evidence_id"), "evidence_id"),
+        evidence_id=_require_uuid(obj, "evidence_id"),
         evidence_key=_require_str(obj, "evidence_key"),
-        step_index=step_index_raw,
+        step_index=_require_int(obj, "step_index", "evidence.step_index"),
         agent_id=_require_str(obj, "agent_id"),
         payload=cast(JsonValue, _require_field(obj, "payload")),
-        created_at=_datetime_from_jsonable(_require_field(obj, "created_at"), "created_at"),
+        created_at=_require_datetime(obj, "created_at"),
     )
 
 
@@ -256,7 +250,7 @@ def _claim_record_from_jsonable(data: Any) -> ClaimRecord:
     if isinstance(confidence_raw, bool) or not isinstance(confidence_raw, (int, float)):
         raise ReportError("claim.confidence must be a number")
     return ClaimRecord(
-        claim_id=_uuid_from_jsonable(_require_field(obj, "claim_id"), "claim_id"),
+        claim_id=_require_uuid(obj, "claim_id"),
         statement=_require_str(obj, "statement"),
         evidence_ids=tuple(_uuid_from_jsonable(item, "evidence_ids[]") for item in _require_list(obj, "evidence_ids")),
         confidence=float(confidence_raw),
@@ -343,6 +337,21 @@ def _require_seed(obj: dict[str, Any], name: str) -> Seed:
         return validate_seed(value)
     except (TypeError, ValueError) as exc:
         raise ReportError(f"field {name!r} is not a valid seed: {exc}") from exc
+
+
+def _require_int(obj: dict[str, Any], name: str, label: str) -> int:
+    value = _require_field(obj, name)
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ReportError(f"{label} must be int")
+    return int(value)
+
+
+def _require_uuid(obj: dict[str, Any], name: str) -> UUID:
+    return _uuid_from_jsonable(_require_field(obj, name), name)
+
+
+def _require_datetime(obj: dict[str, Any], name: str) -> datetime:
+    return _datetime_from_jsonable(_require_field(obj, name), name)
 
 
 def _uuid_from_jsonable(value: Any, label: str) -> UUID:
