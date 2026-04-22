@@ -1,3 +1,5 @@
+"""Public ``ScenarioRunner`` model exposed by ``abdp.scenario``."""
+
 from dataclasses import dataclass
 
 from abdp.agents import Agent, AgentContext, AgentDecision
@@ -17,11 +19,21 @@ __all__ = ["ScenarioRunner"]
 
 @dataclass(frozen=True, slots=True)
 class ScenarioRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
+    """Deterministic execution loop for an agent-based scenario.
+
+    Drives a ``ScenarioSpec`` forward by polling each ``Agent`` in declared
+    tuple order, merging the resulting proposals with any ``pending_actions``
+    carried by the current state, and delegating progression to an
+    ``ActionResolver``. Iteration is bounded by ``max_steps`` and terminates
+    early when no proposals remain to resolve.
+    """
+
     agents: tuple[Agent[S, P, A], ...]
     resolver: ActionResolver[S, P, A]
     max_steps: int
 
     def run(self, spec: ScenarioSpec[S, P, A]) -> ScenarioRun[S, P, A]:
+        """Execute the scenario and return its full ``ScenarioRun`` trace."""
         state: SimulationState[S, P, A] = spec.build_initial_state()
         steps: list[ScenarioStep[S, P, A]] = []
 
