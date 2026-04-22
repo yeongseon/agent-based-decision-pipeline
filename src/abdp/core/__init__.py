@@ -6,8 +6,6 @@ hashing, deterministic retry, fixed-window rate limiting, the connector
 protocol, and the manifest factory protocol.
 """
 
-from __future__ import annotations
-
 from abdp.core.connectors import Connector
 from abdp.core.hashing import stable_hash
 from abdp.core.ids import deterministic_uuid, parse_uuid
@@ -22,6 +20,13 @@ from abdp.core.types import (
     is_json_value,
     validate_seed,
 )
+
+globals().pop("connectors", None)
+globals().pop("hashing", None)
+globals().pop("ids", None)
+globals().pop("manifest_factory", None)
+globals().pop("rate_limit", None)
+globals().pop("types", None)
 
 __all__ = [
     "Backoff",

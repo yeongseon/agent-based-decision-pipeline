@@ -86,3 +86,8 @@ def test_core_package_star_import_yields_exactly_the_public_surface() -> None:
     exec("from abdp.core import *", namespace)
     namespace.pop("__builtins__", None)
     assert sorted(namespace.keys()) == sorted(EXPECTED_PUBLIC_NAMES)
+
+
+def test_core_package_namespace_exposes_only_approved_public_names() -> None:
+    public_attrs = sorted(name for name in vars(abdp.core) if not name.startswith("_"))
+    assert public_attrs == sorted(EXPECTED_PUBLIC_NAMES)
