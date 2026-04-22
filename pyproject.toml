@@ -25,7 +25,7 @@ dev = [
 [tool.mutmut]
 paths_to_mutate = ["src/abdp/"]
 pytest_add_cli_args = ["-p", "no:cacheprovider", "--no-cov"]
-pytest_add_cli_args_test_selection = ["tests/unit/", "tests/core/", "tests/data/"]
+pytest_add_cli_args_test_selection = ["tests/unit/", "tests/core/", "tests/data/", "tests/simulation/"]
 also_copy = ["pytest.ini"]
 do_not_mutate = [
     "src/abdp/__init__.py",
