@@ -4,12 +4,20 @@ from __future__ import annotations
 
 import abdp.evidence
 import pytest
+from abdp.evidence.claim import ClaimRecord, make_claim_record
 from abdp.evidence.record import EvidenceRecord, make_evidence_record
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("EvidenceRecord", "make_evidence_record")
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = (
+    "ClaimRecord",
+    "EvidenceRecord",
+    "make_claim_record",
+    "make_evidence_record",
+)
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "ClaimRecord": ClaimRecord,
     "EvidenceRecord": EvidenceRecord,
+    "make_claim_record": make_claim_record,
     "make_evidence_record": make_evidence_record,
 }
 
