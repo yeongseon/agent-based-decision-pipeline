@@ -6,22 +6,29 @@ import abdp.evaluation
 import pytest
 from abdp.evaluation.gate import Gate, GateResult, GateStatus
 from abdp.evaluation.metric import Metric, MetricResult, evaluate_metrics
+from abdp.evaluation.summary import EvaluationSummary, aggregate_results, evaluate_gates
 
 EXPECTED_PUBLIC_NAMES: tuple[str, ...] = (
+    "EvaluationSummary",
     "Gate",
     "GateResult",
     "GateStatus",
     "Metric",
     "MetricResult",
+    "aggregate_results",
+    "evaluate_gates",
     "evaluate_metrics",
 )
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "EvaluationSummary": EvaluationSummary,
     "Gate": Gate,
     "GateResult": GateResult,
     "GateStatus": GateStatus,
     "Metric": Metric,
     "MetricResult": MetricResult,
+    "aggregate_results": aggregate_results,
+    "evaluate_gates": evaluate_gates,
     "evaluate_metrics": evaluate_metrics,
 }
 
