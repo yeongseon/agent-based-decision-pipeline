@@ -1,16 +1,24 @@
+"""Frozen public surface of the ``abdp.agents`` package."""
+
 from __future__ import annotations
 
+import sys
+
 import abdp.agents
-from abdp.agents.agent import Agent as SourceAgent
-from abdp.agents.context import AgentContext as SourceAgentContext
-from abdp.agents.decision import AgentDecision as SourceAgentDecision
+import abdp.agents.agent  # noqa: F401
+import abdp.agents.context  # noqa: F401
+import abdp.agents.decision  # noqa: F401
+
+agent_module = sys.modules["abdp.agents.agent"]
+context_module = sys.modules["abdp.agents.context"]
+decision_module = sys.modules["abdp.agents.decision"]
 
 EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("Agent", "AgentContext", "AgentDecision")
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
-    "Agent": SourceAgent,
-    "AgentContext": SourceAgentContext,
-    "AgentDecision": SourceAgentDecision,
+    "Agent": agent_module.Agent,
+    "AgentContext": context_module.AgentContext,
+    "AgentDecision": decision_module.AgentDecision,
 }
 
 REPRESENTATIVE_INTERNAL_NAMES: list[str] = ["agent", "context", "decision"]
@@ -21,9 +29,9 @@ def test_agents_package_all_lists_exact_expected_symbols() -> None:
 
 
 def test_agents_package_exposes_each_listed_symbol_with_source_identity() -> None:
-    assert abdp.agents.Agent is EXPECTED_SOURCE_IDENTITY["Agent"]
-    assert abdp.agents.AgentContext is EXPECTED_SOURCE_IDENTITY["AgentContext"]
-    assert abdp.agents.AgentDecision is EXPECTED_SOURCE_IDENTITY["AgentDecision"]
+    for name in EXPECTED_PUBLIC_NAMES:
+        attr = getattr(abdp.agents, name)
+        assert attr is EXPECTED_SOURCE_IDENTITY[name]
 
 
 def test_agents_package_does_not_leak_representative_internal_helpers() -> None:
@@ -34,10 +42,16 @@ def test_agents_package_does_not_leak_representative_internal_helpers() -> None:
 def test_agents_package_star_import_yields_exactly_the_public_surface() -> None:
     namespace: dict[str, object] = {}
     exec("from abdp.agents import *", namespace)
-    _ = namespace.pop("__builtins__", None)
+    namespace.pop("__builtins__", None)
     assert sorted(namespace.keys()) == sorted(EXPECTED_PUBLIC_NAMES)
 
 
 def test_agents_package_namespace_exposes_only_approved_public_names() -> None:
     public_attrs = sorted(name for name in vars(abdp.agents) if not name.startswith("_"))
     assert public_attrs == sorted(EXPECTED_PUBLIC_NAMES)
+
+
+def test_agents_package_has_module_docstring() -> None:
+    doc = abdp.agents.__doc__
+    assert isinstance(doc, str)
+    assert doc.strip()

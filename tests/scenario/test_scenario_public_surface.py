@@ -1,36 +1,65 @@
+"""Frozen public surface of the ``abdp.scenario`` package."""
+
 from __future__ import annotations
 
-import importlib
-import inspect
 import sys
-from types import ModuleType
 
-from abdp.scenario.resolver import ActionResolver
-from abdp.scenario.run import ScenarioRun
-from abdp.scenario.runner import ScenarioRunner
-from abdp.scenario.step import ScenarioStep
+import abdp.scenario
+import abdp.scenario.resolver  # noqa: F401
+import abdp.scenario.run  # noqa: F401
+import abdp.scenario.runner  # noqa: F401
+import abdp.scenario.step  # noqa: F401
 
-_APPROVED_PUBLIC_NAMES = ("ActionResolver", "ScenarioRun", "ScenarioRunner", "ScenarioStep")
+resolver_module = sys.modules["abdp.scenario.resolver"]
+run_module = sys.modules["abdp.scenario.run"]
+runner_module = sys.modules["abdp.scenario.runner"]
+step_module = sys.modules["abdp.scenario.step"]
+
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = (
+    "ActionResolver",
+    "ScenarioRun",
+    "ScenarioRunner",
+    "ScenarioStep",
+)
+
+EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "ActionResolver": resolver_module.ActionResolver,
+    "ScenarioRun": run_module.ScenarioRun,
+    "ScenarioRunner": runner_module.ScenarioRunner,
+    "ScenarioStep": step_module.ScenarioStep,
+}
+
+REPRESENTATIVE_INTERNAL_NAMES: list[str] = ["resolver", "run", "runner", "step"]
 
 
-def _import_fresh_scenario_package() -> ModuleType:
-    sys.modules.pop("abdp.scenario", None)
-    return importlib.import_module("abdp.scenario")
+def test_scenario_package_all_lists_exact_expected_symbols() -> None:
+    assert abdp.scenario.__all__ == EXPECTED_PUBLIC_NAMES
 
 
-def _public_names(module: ModuleType) -> list[str]:
-    return [name for name, _ in inspect.getmembers(module) if not name.startswith("_")]
+def test_scenario_package_exposes_each_listed_symbol_with_source_identity() -> None:
+    for name in EXPECTED_PUBLIC_NAMES:
+        attr = getattr(abdp.scenario, name)
+        assert attr is EXPECTED_SOURCE_IDENTITY[name]
 
 
-def test_scenario_package_dunder_all_matches_approved_public_surface() -> None:
-    pkg = _import_fresh_scenario_package()
-    assert pkg.__all__ == _APPROVED_PUBLIC_NAMES
+def test_scenario_package_does_not_leak_representative_internal_helpers() -> None:
+    for name in REPRESENTATIVE_INTERNAL_NAMES:
+        assert not hasattr(abdp.scenario, name)
 
 
-def test_scenario_package_public_surface_matches_dunder_all() -> None:
-    pkg = _import_fresh_scenario_package()
-    assert tuple(_public_names(pkg)) == _APPROVED_PUBLIC_NAMES
-    assert pkg.ActionResolver is ActionResolver
-    assert pkg.ScenarioRun is ScenarioRun
-    assert pkg.ScenarioRunner is ScenarioRunner
-    assert pkg.ScenarioStep is ScenarioStep
+def test_scenario_package_star_import_yields_exactly_the_public_surface() -> None:
+    namespace: dict[str, object] = {}
+    exec("from abdp.scenario import *", namespace)
+    namespace.pop("__builtins__", None)
+    assert sorted(namespace.keys()) == sorted(EXPECTED_PUBLIC_NAMES)
+
+
+def test_scenario_package_namespace_exposes_only_approved_public_names() -> None:
+    public_attrs = sorted(name for name in vars(abdp.scenario) if not name.startswith("_"))
+    assert public_attrs == sorted(EXPECTED_PUBLIC_NAMES)
+
+
+def test_scenario_package_has_module_docstring() -> None:
+    doc = abdp.scenario.__doc__
+    assert isinstance(doc, str)
+    assert doc.strip()
