@@ -27,7 +27,12 @@ _NAME_SEPARATOR: Final = "\0"
 
 @dataclass(frozen=True, slots=True)
 class ClaimRecord:
-    """Higher-level conclusion backed by one or more evidence records."""
+    """Higher-level conclusion backed by one or more evidence records.
+
+    Invariants enforced in ``__post_init__``: ``evidence_ids`` MUST be
+    non-empty and ``confidence`` MUST be a finite ``float`` in
+    ``[0.0, 1.0]``.
+    """
 
     claim_id: UUID
     statement: str
