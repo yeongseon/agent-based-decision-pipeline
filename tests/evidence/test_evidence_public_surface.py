@@ -7,13 +7,14 @@ import pytest
 from abdp.evidence.audit_log import AuditLog
 from abdp.evidence.claim import ClaimRecord, make_claim_record
 from abdp.evidence.record import EvidenceRecord, make_evidence_record
-from abdp.evidence.store import EvidenceStore
+from abdp.evidence.store import EvidenceStore, InMemoryEvidenceStore
 
 EXPECTED_PUBLIC_NAMES: tuple[str, ...] = (
     "AuditLog",
     "ClaimRecord",
     "EvidenceRecord",
     "EvidenceStore",
+    "InMemoryEvidenceStore",
     "make_claim_record",
     "make_evidence_record",
 )
@@ -23,6 +24,7 @@ EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
     "ClaimRecord": ClaimRecord,
     "EvidenceRecord": EvidenceRecord,
     "EvidenceStore": EvidenceStore,
+    "InMemoryEvidenceStore": InMemoryEvidenceStore,
     "make_claim_record": make_claim_record,
     "make_evidence_record": make_evidence_record,
 }
