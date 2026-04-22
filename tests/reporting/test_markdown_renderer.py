@@ -1,7 +1,7 @@
 """Tests for ``abdp.reporting.render_markdown_report``."""
 
 from datetime import UTC, datetime, timedelta, timezone
-from typing import cast
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -94,8 +94,9 @@ def test_render_markdown_report_is_deterministic() -> None:
 
 
 def test_render_markdown_report_rejects_non_audit_log() -> None:
+    bad = cast(AuditLog[Any, Any, Any], {"not": "audit"})
     with pytest.raises(TypeError, match="AuditLog"):
-        render_markdown_report({"not": "audit"})  # type: ignore[arg-type]
+        render_markdown_report(bad)
 
 
 def test_render_markdown_report_ends_with_newline() -> None:
@@ -246,3 +247,53 @@ def test_render_markdown_report_handles_payload_with_non_string_dict_key() -> No
     bad_metric = MetricResult(metric_id="m", value=bad_value, details={})
     with pytest.raises(TypeError, match="dict key"):
         render_markdown_report(_audit(summary=_summary(metrics=(bad_metric,))))
+
+
+def test_render_markdown_report_sanitizes_newlines_in_scenario_key() -> None:
+    run = ScenarioRun[SegmentState, ParticipantState, ActionProposal](
+        scenario_key="line1\nline2",
+        seed=Seed(0),
+        steps=(),
+        final_state=_state(),
+    )
+    audit = AuditLog[SegmentState, ParticipantState, ActionProposal](
+        scenario_key="line1\nline2",
+        seed=Seed(0),
+        run=run,
+        summary=_summary(),
+        evidence=(_evidence(),),
+        claims=(_claim(),),
+    )
+    rendered = render_markdown_report(audit)
+    assert "- Scenario: line1<br>line2\n" in rendered
+    assert "- Scenario: line1\nline2" not in rendered
+
+
+def test_render_markdown_report_sanitizes_newlines_in_evidence_fields() -> None:
+    evidence = EvidenceRecord(
+        evidence_id=UUID(int=1),
+        evidence_key="key\nwith\nbreaks",
+        step_index=0,
+        agent_id="agent\nname",
+        payload={"x": 1},
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+    rendered = render_markdown_report(_audit(evidence=(evidence,)))
+    assert "agent=agent<br>name" in rendered
+    assert "key=key<br>with<br>breaks" in rendered
+    assert "agent\nname" not in rendered
+    assert "key\nwith\nbreaks" not in rendered
+
+
+def test_render_markdown_report_sanitizes_carriage_returns_in_text_fields() -> None:
+    evidence = EvidenceRecord(
+        evidence_id=UUID(int=1),
+        evidence_key="a\r\nb\rc",
+        step_index=0,
+        agent_id="agent",
+        payload={"x": 1},
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+    rendered = render_markdown_report(_audit(evidence=(evidence,)))
+    assert "key=a<br>b<br>c" in rendered
+    assert "\r" not in rendered

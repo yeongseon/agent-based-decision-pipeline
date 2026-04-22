@@ -42,7 +42,7 @@ def _section_header(audit: AuditLog[Any, Any, Any]) -> str:
     return (
         "# Audit Report\n"
         "\n"
-        f"- Scenario: {audit.scenario_key}\n"
+        f"- Scenario: {_inline_text(audit.scenario_key)}\n"
         f"- Seed: {int(audit.seed)}\n"
         f"- Steps: {audit.run.step_count}"
     )
@@ -84,7 +84,8 @@ def _section_evidence_list(evidence: tuple[EvidenceRecord, ...]) -> str:
         payload = _inline_json(record.payload)
         lines.append(
             f"- {record.evidence_id} [{created_at}] step={record.step_index}"
-            f" agent={record.agent_id} key={record.evidence_key} payload={payload}"
+            f" agent={_inline_text(record.agent_id)}"
+            f" key={_inline_text(record.evidence_key)} payload={payload}"
         )
     return "\n".join(lines)
 
@@ -126,3 +127,7 @@ def _inline_json(value: Any) -> str:
 
 def _table_cell(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", "<br>")
+
+
+def _inline_text(text: str) -> str:
+    return text.replace("\r\n", "<br>").replace("\n", "<br>").replace("\r", "<br>")
