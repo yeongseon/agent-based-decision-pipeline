@@ -4,11 +4,22 @@ from __future__ import annotations
 
 import abdp.evaluation
 import pytest
+from abdp.evaluation.gate import Gate, GateResult, GateStatus
 from abdp.evaluation.metric import Metric, MetricResult, evaluate_metrics
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("Metric", "MetricResult", "evaluate_metrics")
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = (
+    "Gate",
+    "GateResult",
+    "GateStatus",
+    "Metric",
+    "MetricResult",
+    "evaluate_metrics",
+)
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "Gate": Gate,
+    "GateResult": GateResult,
+    "GateStatus": GateStatus,
     "Metric": Metric,
     "MetricResult": MetricResult,
     "evaluate_metrics": evaluate_metrics,
