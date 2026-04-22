@@ -45,10 +45,15 @@ def run_command(args: argparse.Namespace) -> int:
 
 
 def _write_output(content: str, output: Path | None) -> None:
+    encoded = content.encode("utf-8")
     if output is None:
-        sys.stdout.write(content)
+        buffer = getattr(sys.stdout, "buffer", None)
+        if buffer is None:
+            sys.stdout.write(content)
+        else:
+            buffer.write(encoded)
     else:
-        output.write_text(content, encoding="utf-8")
+        output.write_bytes(encoded)
 
 
 def _emit_warn_notice_if_needed(status: GateStatus) -> None:

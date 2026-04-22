@@ -5,7 +5,6 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
-
 import pytest
 
 from abdp.cli.__main__ import main
@@ -20,6 +19,7 @@ PASS_SPEC = "tests.cli._fixtures:build_audit_log"
 WARN_SPEC = "tests.cli._fixtures:build_warn_audit_log"
 FAIL_SPEC = "tests.cli._fixtures:build_fail_audit_log"
 NOT_AUDIT_SPEC = "tests.cli._fixtures:build_not_audit_log"
+UNICODE_SPEC = "tests.cli._fixtures:build_unicode_audit_log"
 
 
 def test_run_pass_writes_json_report_to_stdout_with_exit_zero(
@@ -153,3 +153,45 @@ def test_run_help_lists_seed_and_output_flags() -> None:
     with pytest.raises(SystemExit) as exc_info:
         main(["run", "--help"])
     assert exc_info.value.code == 0
+
+
+def test_run_unicode_stdout_bytes_match_file_bytes_exact_utf8(
+    tmp_path: Path,
+    capsysbinary: pytest.CaptureFixture[bytes],
+) -> None:
+    output = tmp_path / "unicode.json"
+    file_exit = main(["run", UNICODE_SPEC, "--seed", "0", "--output", str(output)])
+    file_bytes = output.read_bytes()
+    capsysbinary.readouterr()
+
+    stdout_exit = main(["run", UNICODE_SPEC, "--seed", "0"])
+    captured = capsysbinary.readouterr()
+
+    from abdp.core import Seed
+    from tests.cli._fixtures import build_unicode_audit_log
+
+    expected = render_json_report(build_unicode_audit_log(Seed(0))).encode("utf-8")
+    assert file_exit == 0
+    assert stdout_exit == 0
+    assert file_bytes == expected
+    assert captured.out == expected
+    assert captured.out == file_bytes
+    assert b"\xed\x95\x9c" in captured.out
+
+
+def test_run_falls_back_to_text_write_when_stdout_has_no_buffer(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import io
+
+    text_only = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", text_only)
+    exit_code = main(["run", PASS_SPEC, "--seed", "0"])
+    capsys.readouterr()
+
+    from abdp.core import Seed
+
+    expected = render_json_report(build_audit_log(Seed(0)))
+    assert exit_code == 0
+    assert text_only.getvalue() == expected

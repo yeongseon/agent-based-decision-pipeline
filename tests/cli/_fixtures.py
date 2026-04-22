@@ -62,6 +62,24 @@ def build_fail_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
     return _build(seed, GateStatus.FAIL)
 
 
+def build_unicode_audit_log(seed: Seed) -> AuditLog[Any, Any, Any]:
+    run = ScenarioRun[SegmentState, ParticipantState, ActionProposal](
+        scenario_key="한글-시나리오-✓",
+        seed=seed,
+        steps=(),
+        final_state=_state(),
+    )
+    summary = EvaluationSummary(metrics=(), gates=(), overall_status=GateStatus.PASS)
+    return AuditLog[SegmentState, ParticipantState, ActionProposal](
+        scenario_key="한글-시나리오-✓",
+        seed=seed,
+        run=run,
+        summary=summary,
+        evidence=(),
+        claims=(),
+    )
+
+
 def build_not_audit_log(seed: Seed) -> object:
     _ = seed
     return {"not": "audit"}
