@@ -28,6 +28,44 @@ _ALLOWED_TIERS: tuple[SnapshotTier, ...] = get_args(SnapshotTier.__value__)
 _ZERO_OFFSET = timedelta(0)
 
 
+def _validate_uuid(field_name: str, value: object) -> None:
+    if not isinstance(value, UUID):
+        raise TypeError(f"{field_name} must be UUID, got {type(value).__name__}")
+
+
+def _validate_tier(value: object) -> None:
+    if not isinstance(value, str):
+        raise TypeError(f"tier must be str, got {type(value).__name__}")
+    if value not in _ALLOWED_TIERS:
+        raise ValueError(f"tier must be one of {_ALLOWED_TIERS!r}, got {value!r}")
+
+
+def _validate_non_empty_text(field_name: str, value: object) -> None:
+    if not isinstance(value, str):
+        raise TypeError(f"{field_name} must be str, got {type(value).__name__}")
+    if not value.strip():
+        raise ValueError(f"{field_name} must not be empty or whitespace")
+
+
+def _validate_created_at(value: object) -> None:
+    if not isinstance(value, datetime):
+        raise TypeError(f"created_at must be datetime, got {type(value).__name__}")
+    offset = value.utcoffset()
+    if offset is None:
+        raise ValueError("created_at must be timezone-aware")
+    if offset != _ZERO_OFFSET:
+        raise ValueError("created_at must be UTC")
+
+
+def _validate_parent_snapshot_id(parent: object, snapshot_id: UUID) -> None:
+    if parent is None:
+        return
+    if not isinstance(parent, UUID):
+        raise TypeError(f"parent_snapshot_id must be UUID or None, got {type(parent).__name__}")
+    if parent == snapshot_id:
+        raise ValueError("parent_snapshot_id must not equal snapshot_id")
+
+
 @dataclass(frozen=True, slots=True, kw_only=True)
 class SnapshotManifest:
     """SnapshotManifest contract:
@@ -48,35 +86,10 @@ class SnapshotManifest:
     parent_snapshot_id: UUID | None = None
 
     def __post_init__(self) -> None:
-        if not isinstance(self.snapshot_id, UUID):
-            raise TypeError(f"snapshot_id must be UUID, got {type(self.snapshot_id).__name__}")
-
-        if not isinstance(self.tier, str):
-            raise TypeError(f"tier must be str, got {type(self.tier).__name__}")
-        if self.tier not in _ALLOWED_TIERS:
-            raise ValueError(f"tier must be one of {_ALLOWED_TIERS!r}, got {self.tier!r}")
-
-        if not isinstance(self.storage_key, str):
-            raise TypeError(f"storage_key must be str, got {type(self.storage_key).__name__}")
-        if not self.storage_key.strip():
-            raise ValueError("storage_key must not be empty or whitespace")
-
-        if not isinstance(self.content_hash, str):
-            raise TypeError(f"content_hash must be str, got {type(self.content_hash).__name__}")
-        if not self.content_hash.strip():
-            raise ValueError("content_hash must not be empty or whitespace")
-
-        if not isinstance(self.created_at, datetime):
-            raise TypeError(f"created_at must be datetime, got {type(self.created_at).__name__}")
-        offset = self.created_at.utcoffset()
-        if offset is None:
-            raise ValueError("created_at must be timezone-aware")
-        if offset != _ZERO_OFFSET:
-            raise ValueError("created_at must be UTC")
-
+        _validate_uuid("snapshot_id", self.snapshot_id)
+        _validate_tier(self.tier)
+        _validate_non_empty_text("storage_key", self.storage_key)
+        _validate_non_empty_text("content_hash", self.content_hash)
+        _validate_created_at(self.created_at)
         validate_seed(self.seed)
-
-        if self.parent_snapshot_id is not None and not isinstance(self.parent_snapshot_id, UUID):
-            raise TypeError(f"parent_snapshot_id must be UUID or None, got {type(self.parent_snapshot_id).__name__}")
-        if self.parent_snapshot_id is not None and self.parent_snapshot_id == self.snapshot_id:
-            raise ValueError("parent_snapshot_id must not equal snapshot_id")
+        _validate_parent_snapshot_id(self.parent_snapshot_id, self.snapshot_id)
