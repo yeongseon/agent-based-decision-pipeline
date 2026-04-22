@@ -7,9 +7,10 @@ from types import ModuleType
 
 from abdp.scenario.resolver import ActionResolver
 from abdp.scenario.run import ScenarioRun
+from abdp.scenario.runner import ScenarioRunner
 from abdp.scenario.step import ScenarioStep
 
-_APPROVED_PUBLIC_NAMES = ("ActionResolver", "ScenarioRun", "ScenarioStep")
+_APPROVED_PUBLIC_NAMES = ("ActionResolver", "ScenarioRun", "ScenarioRunner", "ScenarioStep")
 
 
 def _import_fresh_scenario_package() -> ModuleType:
@@ -31,4 +32,5 @@ def test_scenario_package_public_surface_matches_dunder_all() -> None:
     assert tuple(_public_names(pkg)) == _APPROVED_PUBLIC_NAMES
     assert pkg.ActionResolver is ActionResolver
     assert pkg.ScenarioRun is ScenarioRun
+    assert pkg.ScenarioRunner is ScenarioRunner
     assert pkg.ScenarioStep is ScenarioStep
