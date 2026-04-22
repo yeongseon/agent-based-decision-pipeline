@@ -8,9 +8,10 @@ import sys
 from types import ModuleType
 
 from abdp.simulation.participant_state import ParticipantState
+from abdp.simulation.segment_state import SegmentState
 from abdp.simulation.snapshot_ref import SnapshotRef
 
-_APPROVED_PUBLIC_NAMES = ["ParticipantState", "SnapshotRef"]
+_APPROVED_PUBLIC_NAMES = ["ParticipantState", "SegmentState", "SnapshotRef"]
 
 
 def _import_fresh_simulation_package() -> ModuleType:
@@ -31,4 +32,5 @@ def test_simulation_package_public_surface_matches_dunder_all() -> None:
     pkg = _import_fresh_simulation_package()
     assert _public_names(pkg) == _APPROVED_PUBLIC_NAMES
     assert pkg.ParticipantState is ParticipantState
+    assert pkg.SegmentState is SegmentState
     assert pkg.SnapshotRef is SnapshotRef
