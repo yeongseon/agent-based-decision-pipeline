@@ -29,44 +29,47 @@ class CreditResolver(ActionResolver[RiskTier, Borrower, CreditAction]):
         removed_ids: set[str] = set()
         next_pending: list[CreditAction] = []
         for proposal in proposals:
-            if proposal.action_key in {ACTION_APPROVE, ACTION_DECLINE}:
-                removed_ids.add(_borrower_id(proposal))
-            elif proposal.action_key == ACTION_REQUEST_INFO:
-                borrower_id = _borrower_id(proposal)
-                removed_ids.add(borrower_id)
-                next_pending.append(
-                    CreditAction(
-                        proposal_id=f"escalate-{borrower_id}-step{state.step_index + 1}",
-                        actor_id=proposal.actor_id,
-                        action_key=ACTION_ESCALATE,
-                        payload={
-                            "case_id": f"case-{borrower_id}",
-                            "reason": "borderline_request_info",
-                        },
-                    )
-                )
-            elif proposal.action_key == ACTION_ESCALATE:
-                continue
-            else:
-                raise ValueError(f"Unknown action_key: {proposal.action_key}")
-        new_segments = tuple(
-            RiskTier(
-                segment_id=tier.segment_id,
-                participant_ids=tuple(pid for pid in tier.participant_ids if pid not in removed_ids),
-                tier_key=tier.tier_key,
-                min_credit_score=tier.min_credit_score,
-                max_amount_cents=tier.max_amount_cents,
-            )
-            for tier in state.segments
-        )
+            match proposal.action_key:
+                case k if k == ACTION_APPROVE or k == ACTION_DECLINE:
+                    removed_ids.add(_borrower_id(proposal))
+                case k if k == ACTION_REQUEST_INFO:
+                    borrower_id = _borrower_id(proposal)
+                    removed_ids.add(borrower_id)
+                    next_pending.append(_escalation_for(borrower_id, proposal, state.step_index + 1))
+                case k if k == ACTION_ESCALATE:
+                    continue
+                case unknown:
+                    raise ValueError(f"Unknown action_key: {unknown}")
         return SimulationState[RiskTier, Borrower, CreditAction](
             step_index=state.step_index + 1,
             seed=state.seed,
             snapshot_ref=state.snapshot_ref,
-            segments=new_segments,
+            segments=tuple(_drop_members(tier, removed_ids) for tier in state.segments),
             participants=state.participants,
             pending_actions=tuple(next_pending),
         )
+
+
+def _drop_members(tier: RiskTier, removed_ids: set[str]) -> RiskTier:
+    return RiskTier(
+        segment_id=tier.segment_id,
+        participant_ids=tuple(pid for pid in tier.participant_ids if pid not in removed_ids),
+        tier_key=tier.tier_key,
+        min_credit_score=tier.min_credit_score,
+        max_amount_cents=tier.max_amount_cents,
+    )
+
+
+def _escalation_for(borrower_id: str, source: CreditAction, next_step_index: int) -> CreditAction:
+    return CreditAction(
+        proposal_id=f"escalate-{borrower_id}-step{next_step_index}",
+        actor_id=source.actor_id,
+        action_key=ACTION_ESCALATE,
+        payload={
+            "case_id": f"case-{borrower_id}",
+            "reason": "borderline_request_info",
+        },
+    )
 
 
 def _borrower_id(proposal: CreditAction) -> str:

@@ -39,19 +39,22 @@ class TierOfficer(Agent[RiskTier, Borrower, CreditAction]):
             return CreditDecision(agent_id=self.agent_id, proposals=())
         borrowers_by_id = {b.participant_id: b for b in state.participants}
         proposals = tuple(
-            CreditAction(
-                proposal_id=f"decision-{self.tier_key}-{borrower_id}-step{context.step_index}",
-                actor_id=self.agent_id,
-                action_key=_classify(borrowers_by_id[borrower_id], tier),
-                payload={
-                    "borrower_id": borrower_id,
-                    "credit_score": borrowers_by_id[borrower_id].credit_score,
-                    "requested_amount_cents": borrowers_by_id[borrower_id].requested_amount_cents,
-                },
-            )
+            self._propose(borrowers_by_id[borrower_id], tier, context.step_index)
             for borrower_id in tier.participant_ids
         )
         return CreditDecision(agent_id=self.agent_id, proposals=proposals)
+
+    def _propose(self, borrower: Borrower, tier: RiskTier, step_index: int) -> CreditAction:
+        return CreditAction(
+            proposal_id=f"decision-{self.tier_key}-{borrower.participant_id}-step{step_index}",
+            actor_id=self.agent_id,
+            action_key=_classify(borrower, tier),
+            payload={
+                "borrower_id": borrower.participant_id,
+                "credit_score": borrower.credit_score,
+                "requested_amount_cents": borrower.requested_amount_cents,
+            },
+        )
 
 
 def _classify(borrower: Borrower, tier: RiskTier) -> str:
