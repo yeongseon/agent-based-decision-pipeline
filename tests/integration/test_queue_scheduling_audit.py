@@ -9,25 +9,25 @@ summary passes, and whose JSON output matches the ``abdp run`` CLI byte-for-byte
 
 from __future__ import annotations
 
-import subprocess
-import sys
-from pathlib import Path
-
 from abdp.core.types import Seed
 from abdp.evaluation import EvaluationSummary, GateStatus
 from abdp.evidence import AuditLog, EvidenceRecord
-from abdp.reporting import render_json_report, render_markdown_report
+from abdp.reporting import render_markdown_report
 
 from examples.queue_scheduling.audit import (
     _DECISION_STEP_METRIC_ID,
     _SELECTED_EVIDENCE_METRIC_ID,
     build_audit_log,
 )
+from tests.integration._audit_assertions import (
+    SELECTED_PROPOSAL_KEY,
+    assert_audit_is_deterministic,
+    assert_cli_run_matches_direct_render,
+    assert_selected_proposal_per_decision_step,
+)
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
 SEED = Seed(11)
 SCENARIO_KEY = "latency-baseline"
-SELECTED_PROPOSAL_KEY = "selected_proposal"
 LOADER_SPEC = "examples.queue_scheduling.audit:build_audit_log"
 
 
@@ -42,10 +42,7 @@ def test_build_audit_log_returns_audit_log_with_matching_seed_and_key() -> None:
 
 def test_build_audit_log_emits_one_selected_proposal_per_decision_step() -> None:
     audit = build_audit_log(SEED)
-    decision_step_indices = tuple(step.state.step_index for step in audit.run.steps if step.proposals)
-    selected_records = tuple(record for record in audit.evidence if record.evidence_key == SELECTED_PROPOSAL_KEY)
-    assert len(selected_records) == len(decision_step_indices)
-    assert tuple(record.step_index for record in selected_records) == decision_step_indices
+    selected_records = assert_selected_proposal_per_decision_step(audit)
     for record, step in zip(
         selected_records,
         (step for step in audit.run.steps if step.proposals),
@@ -85,7 +82,7 @@ def test_decision_step_metric_is_derived_from_run_independently_of_evidence() ->
 
 
 def test_build_audit_log_is_deterministic_for_fixed_seed() -> None:
-    assert build_audit_log(SEED) == build_audit_log(SEED)
+    assert_audit_is_deterministic(build_audit_log, SEED)
 
 
 def test_build_audit_log_renders_markdown_without_error() -> None:
@@ -97,20 +94,4 @@ def test_build_audit_log_renders_markdown_without_error() -> None:
 
 
 def test_cli_run_stdout_matches_direct_render() -> None:
-    expected = render_json_report(build_audit_log(SEED)).encode("utf-8")
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "abdp",
-            "run",
-            LOADER_SPEC,
-            "--seed",
-            str(int(SEED)),
-        ],
-        capture_output=True,
-        check=False,
-        cwd=REPO_ROOT,
-    )
-    assert result.returncode == 0, result.stderr.decode("utf-8", "replace")
-    assert result.stdout == expected
+    assert_cli_run_matches_direct_render(build_audit_log, LOADER_SPEC, SEED)
