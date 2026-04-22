@@ -1,16 +1,12 @@
 from __future__ import annotations
 
-import sys
-
 import abdp.agents
-import abdp.agents.decision  # noqa: F401
-
-decision_module = sys.modules["abdp.agents.decision"]
+from abdp.agents.decision import AgentDecision as SourceAgentDecision
 
 EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("AgentDecision",)
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
-    "AgentDecision": decision_module.AgentDecision,
+    "AgentDecision": SourceAgentDecision,
 }
 
 REPRESENTATIVE_INTERNAL_NAMES: list[str] = ["decision"]
@@ -21,9 +17,7 @@ def test_agents_package_all_lists_exact_expected_symbols() -> None:
 
 
 def test_agents_package_exposes_each_listed_symbol_with_source_identity() -> None:
-    for name in EXPECTED_PUBLIC_NAMES:
-        attr = getattr(abdp.agents, name)
-        assert attr is EXPECTED_SOURCE_IDENTITY[name]
+    assert abdp.agents.AgentDecision is EXPECTED_SOURCE_IDENTITY["AgentDecision"]
 
 
 def test_agents_package_does_not_leak_representative_internal_helpers() -> None:
@@ -34,7 +28,7 @@ def test_agents_package_does_not_leak_representative_internal_helpers() -> None:
 def test_agents_package_star_import_yields_exactly_the_public_surface() -> None:
     namespace: dict[str, object] = {}
     exec("from abdp.agents import *", namespace)
-    namespace.pop("__builtins__", None)
+    _ = namespace.pop("__builtins__", None)
     assert sorted(namespace.keys()) == sorted(EXPECTED_PUBLIC_NAMES)
 
 

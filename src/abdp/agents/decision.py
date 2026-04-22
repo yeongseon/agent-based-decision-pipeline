@@ -6,8 +6,8 @@ class AgentDecision[A](Protocol):
     """Output of an agent for a single scenario step.
 
     ``agent_id`` identifies the emitting agent; ``proposals`` are the actions
-    the agent suggests for this step. Proposals are an ordered tuple so that
-    downstream resolvers can apply deterministic tie-breaking.
+    the agent suggests for this step. The ordered tuple preserves deterministic
+    downstream tie-breaking.
     """
 
     agent_id: str
