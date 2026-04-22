@@ -1,3 +1,5 @@
+"""Public agent-facing contracts exported by ``abdp.agents``."""
+
 from abdp.agents.agent import Agent
 from abdp.agents.context import AgentContext
 from abdp.agents.decision import AgentDecision
