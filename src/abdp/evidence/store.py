@@ -93,7 +93,8 @@ class InMemoryEvidenceStore[S: SegmentState, P: ParticipantState, A: ActionPropo
             raise ValueError(f"duplicate claim_id: {claim.claim_id}")
         missing = tuple(eid for eid in claim.evidence_ids if eid not in self._evidence)
         if missing:
-            raise ValueError(f"claim references unknown evidence_ids: {missing}")
+            joined = ", ".join(str(eid) for eid in missing)
+            raise ValueError(f"claim references unknown evidence_ids: {joined}")
         self._claims[claim.claim_id] = claim
 
     def evidence(self) -> tuple[EvidenceRecord, ...]:
