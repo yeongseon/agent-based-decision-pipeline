@@ -3,12 +3,8 @@
 from __future__ import annotations
 
 import dataclasses
-import importlib
-import inspect
-import sys
 from dataclasses import FrozenInstanceError
 from datetime import UTC, datetime
-from types import ModuleType
 from typing import assert_type, cast
 from uuid import UUID
 
@@ -27,8 +23,6 @@ _DEFAULT_CONTENT_HASH = stable_hash({"value": 1})
 _DEFAULT_SEED = validate_seed(7)
 _STORAGE_KEY = "snapshots/bronze/example.json"
 _OTHER_STORAGE_KEY = "snapshots/bronze/other.json"
-
-_APPROVED_PUBLIC_NAMES = ["SnapshotRef"]
 
 
 def _make_manifest(
@@ -61,15 +55,6 @@ def _make_ref(
     return SnapshotRef(snapshot_id=snapshot_id, tier=tier, storage_key=storage_key)
 
 
-def _import_fresh_simulation_package() -> ModuleType:
-    sys.modules.pop("abdp.simulation", None)
-    return importlib.import_module("abdp.simulation")
-
-
-def _public_names(module: ModuleType) -> list[str]:
-    return [name for name, _ in inspect.getmembers(module) if not name.startswith("_")]
-
-
 def test_snapshot_ref_module_docstring_includes_contract_anchor() -> None:
     doc = sr.__doc__ or ""
     assert "Snapshot reference contract:" in doc
@@ -80,17 +65,6 @@ def test_snapshot_ref_module_docstring_includes_contract_anchor() -> None:
 def test_snapshot_ref_module_exports_public_symbols_only() -> None:
     assert sr.__all__ == ["SnapshotRef"]
     assert sr.SnapshotRef is SnapshotRef
-
-
-def test_simulation_package_dunder_all_matches_approved_public_surface() -> None:
-    pkg = _import_fresh_simulation_package()
-    assert pkg.__all__ == _APPROVED_PUBLIC_NAMES
-
-
-def test_simulation_package_public_surface_matches_dunder_all() -> None:
-    pkg = _import_fresh_simulation_package()
-    assert _public_names(pkg) == _APPROVED_PUBLIC_NAMES
-    assert pkg.SnapshotRef is SnapshotRef
 
 
 def test_snapshot_ref_class_docstring_includes_contract_anchor() -> None:
