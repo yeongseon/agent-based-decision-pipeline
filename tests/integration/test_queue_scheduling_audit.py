@@ -1,10 +1,10 @@
-"""Integration test for the credit underwriting audit factory (#124).
+"""Integration test for the queue scheduling audit factory (#125).
 
-Verifies that ``examples.credit_underwriting.audit.build_audit_log`` produces
-a deterministic ``AuditLog`` whose evidence contains the reserved
-``selected_proposal`` key for every decision step, whose evaluation summary
-passes its gates, and whose JSON/Markdown reports round-trip cleanly through
-both the public renderers and the ``abdp`` CLI subcommands.
+Mirrors :mod:`tests.integration.test_credit_underwriting_audit` so that the
+audit pipeline is provably domain-neutral: the queue scheduling example must
+produce a deterministic ``AuditLog`` whose evidence carries the reserved
+``selected_proposal`` key for every step with proposals, whose evaluation
+summary passes, and whose JSON output matches the ``abdp run`` CLI byte-for-byte.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from abdp.evaluation import EvaluationSummary, GateStatus
 from abdp.evidence import AuditLog, EvidenceRecord
 from abdp.reporting import render_markdown_report
 
-from examples.credit_underwriting.audit import (
+from examples.queue_scheduling.audit import (
     _DECISION_STEP_METRIC_ID,
     _SELECTED_EVIDENCE_METRIC_ID,
     build_audit_log,
@@ -26,9 +26,9 @@ from tests.integration._audit_assertions import (
     assert_selected_proposal_per_decision_step,
 )
 
-SEED = Seed(7)
-SCENARIO_KEY = "credit-underwriting-baseline"
-LOADER_SPEC = "examples.credit_underwriting.audit:build_audit_log"
+SEED = Seed(11)
+SCENARIO_KEY = "latency-baseline"
+LOADER_SPEC = "examples.queue_scheduling.audit:build_audit_log"
 
 
 def test_build_audit_log_returns_audit_log_with_matching_seed_and_key() -> None:
