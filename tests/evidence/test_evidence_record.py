@@ -181,3 +181,15 @@ def test_make_evidence_record_id_changes_with_seed() -> None:
     a = make_evidence_record(seed=Seed(0), **args)
     b = make_evidence_record(seed=Seed(1), **args)
     assert a.evidence_id != b.evidence_id
+
+
+def test_make_evidence_record_pins_golden_vector() -> None:
+    record = make_evidence_record(
+        seed=Seed(42),
+        evidence_key="risk-score",
+        step_index=3,
+        agent_id="agent",
+        payload={"x": 1},
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+    )
+    assert record.evidence_id == UUID("0049a686-a794-5e86-b3ef-04a9b549324b")
