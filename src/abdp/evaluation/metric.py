@@ -46,10 +46,11 @@ class Metric[R](Protocol):
 def evaluate_metrics[R](metrics: Iterable[Metric[R]], run: R) -> tuple[MetricResult, ...]:
     """Evaluate ``metrics`` against ``run`` and return their results in iteration order.
 
-    The output tuple's order matches the iteration order of ``metrics``; results
-    are deterministic when both the iterable and each metric's ``evaluate``
-    are deterministic for the same ``run``. The helper does not detect
-    duplicate ``metric_id`` values.
+    Each metric's :meth:`Metric.evaluate` is invoked exactly once with ``run``,
+    in the order produced by iterating ``metrics``. The output tuple mirrors
+    that order, so results are deterministic when both the iterable and each
+    metric's ``evaluate`` are deterministic for the same ``run``. The helper
+    does not detect duplicate ``metric_id`` values.
     """
 
     return tuple(metric.evaluate(run) for metric in metrics)
