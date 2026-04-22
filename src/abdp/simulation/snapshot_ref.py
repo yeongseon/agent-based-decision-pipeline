@@ -36,11 +36,11 @@ def _validate_tier(value: object) -> None:
         raise ValueError(f"tier must be one of {_ALLOWED_TIERS!r}, got {value!r}")
 
 
-def _validate_storage_key(value: object) -> None:
+def _validate_non_empty_text(field_name: str, value: object) -> None:
     if not isinstance(value, str):
-        raise TypeError(f"storage_key must be str, got {type(value).__name__}")
+        raise TypeError(f"{field_name} must be str, got {type(value).__name__}")
     if not value.strip():
-        raise ValueError("storage_key must not be empty or whitespace")
+        raise ValueError(f"{field_name} must not be empty or whitespace")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -62,7 +62,7 @@ class SnapshotRef:
     def __post_init__(self) -> None:
         _validate_uuid("snapshot_id", self.snapshot_id)
         _validate_tier(self.tier)
-        _validate_storage_key(self.storage_key)
+        _validate_non_empty_text("storage_key", self.storage_key)
 
     @classmethod
     def from_manifest(cls, manifest: SnapshotManifest) -> Self:
