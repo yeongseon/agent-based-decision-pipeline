@@ -9,15 +9,20 @@ issue by issue against the frozen surface test in
 
 from abdp.evaluation.gate import Gate, GateResult, GateStatus
 from abdp.evaluation.metric import Metric, MetricResult, evaluate_metrics
+from abdp.evaluation.summary import EvaluationSummary, aggregate_results, evaluate_gates
 
 globals().pop("gate", None)
 globals().pop("metric", None)
+globals().pop("summary", None)
 
 __all__: tuple[str, ...] = (
+    "EvaluationSummary",
     "Gate",
     "GateResult",
     "GateStatus",
     "Metric",
     "MetricResult",
+    "aggregate_results",
+    "evaluate_gates",
     "evaluate_metrics",
 )
