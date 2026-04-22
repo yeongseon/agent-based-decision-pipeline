@@ -69,7 +69,7 @@ def _to_jsonable(value: Any) -> Any:
         if isinstance(value, proto):
             return {attr: _to_jsonable(getattr(value, attr)) for attr in attrs}
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        return {f.name: _to_jsonable(getattr(value, f.name)) for f in dataclasses.fields(value)}
+        return _serialize_dataclass(value)
     raise TypeError(f"cannot serialize value of type {type(value).__name__}")
 
 
@@ -87,6 +87,10 @@ def _serialize_mapping(value: dict[Any, Any]) -> dict[str, Any]:
             raise TypeError(f"dict key must be str, got {type(k).__name__}")
         out[k] = _to_jsonable(v)
     return out
+
+
+def _serialize_dataclass(value: Any) -> dict[str, Any]:
+    return {f.name: _to_jsonable(getattr(value, f.name)) for f in dataclasses.fields(value)}
 
 
 _PROTOCOL_PROJECTIONS: tuple[tuple[type, tuple[str, ...]], ...] = (
