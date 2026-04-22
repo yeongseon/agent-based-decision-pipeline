@@ -5,8 +5,8 @@ Symbols are added to ``__all__`` issue by issue against the frozen surface
 test in ``tests/evaluation/test_evaluation_public_surface.py``.
 """
 
-from abdp.evaluation.metric import Metric, MetricResult
+from abdp.evaluation.metric import Metric, MetricResult, evaluate_metrics
 
 globals().pop("metric", None)
 
-__all__: tuple[str, ...] = ("Metric", "MetricResult")
+__all__: tuple[str, ...] = ("Metric", "MetricResult", "evaluate_metrics")
