@@ -67,7 +67,12 @@ def test_bronze_module_exports_public_symbols_only() -> None:
 
 
 def test_data_package_exports_bronze_contract_publicly() -> None:
-    assert abdp.data.__all__ == ["BronzeContract", "SnapshotManifest", "SnapshotTier"]
+    assert abdp.data.__all__ == [
+        "BronzeContract",
+        "SilverContract",
+        "SnapshotManifest",
+        "SnapshotTier",
+    ]
     assert abdp.data.BronzeContract is BronzeContract
 
 
