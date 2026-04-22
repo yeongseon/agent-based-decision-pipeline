@@ -18,7 +18,6 @@ REQUIRED_SCAFFOLD_PATHS = (
 
 PACKAGE_MODULES_WITH_EMPTY_DOCSTRING = (
     "abdp",
-    "abdp.core",
     "abdp.data",
     "abdp.simulation",
 )

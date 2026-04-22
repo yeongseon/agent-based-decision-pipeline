@@ -11,8 +11,11 @@ from abdp.core.retry import Backoff, retry
 
 
 def test_retry_module_exposes_only_retry_and_backoff_publicly() -> None:
-    import abdp.core.retry as module
+    import sys
 
+    import abdp.core.retry  # noqa: F401
+
+    module = sys.modules["abdp.core.retry"]
     assert sorted(module.__all__) == ["Backoff", "retry"]
 
 
