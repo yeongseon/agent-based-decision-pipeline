@@ -26,8 +26,10 @@ class AuditLog[S: SegmentState, P: ParticipantState, A: ActionProposal]:
     """Auditable bundle of a scenario run, its evaluation, and supporting facts.
 
     ``__post_init__`` enforces that ``scenario_key`` and ``seed`` match
-    the corresponding fields on ``run``; collection ordering for
-    ``evidence`` and ``claims`` is preserved exactly as supplied.
+    the corresponding fields on ``run``. ``evidence`` and ``claims``
+    are stored as tuples and preserve caller-supplied order; the
+    bundle does not impose canonical ordering, so deterministic
+    ordering is the caller's responsibility.
     """
 
     scenario_key: str
