@@ -1,4 +1,4 @@
-"""Test-local queue scheduling domain proving the v0.1 simulation contracts admit a second domain."""
+"""Queue scheduling example proving the v0.1 simulation contracts admit a second domain."""
 
 from __future__ import annotations
 
