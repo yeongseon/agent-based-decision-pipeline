@@ -40,8 +40,16 @@ def _parse_spec(spec: str) -> tuple[str, str]:
     module_name, attr_name = parts
     if not module_name or not attr_name:
         raise LoaderError(_invalid_spec(spec, "module and callable parts must be non-empty"))
-    if module_name != module_name.strip() or attr_name != attr_name.strip():
+    if any(ch.isspace() for ch in module_name) or any(ch.isspace() for ch in attr_name):
         raise LoaderError(_invalid_spec(spec, "module and callable parts must not contain whitespace"))
+    if (
+        module_name.startswith(".")
+        or module_name.endswith(".")
+        or ".." in module_name
+        or "/" in module_name
+        or "\\" in module_name
+    ):
+        raise LoaderError(_invalid_spec(spec, "module part must be an absolute dotted path (no traversal)"))
     return module_name, attr_name
 
 

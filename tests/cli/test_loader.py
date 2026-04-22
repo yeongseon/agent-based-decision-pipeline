@@ -39,6 +39,15 @@ def test_loaded_factory_rejects_non_audit_log_return() -> None:
         "module:callable ",
         "module: callable",
         "",
+        "tests.cli. _fixtures:build_audit_log",
+        "tests.cli._fixtures:build audit_log",
+        "module\twith\ttabs:func",
+        ".os:path",
+        "..pkg.mod:func",
+        "pkg.:func",
+        "pkg..mod:func",
+        "pkg/mod:func",
+        "pkg\\mod:func",
     ],
 )
 def test_load_audit_log_factory_rejects_malformed_spec(spec: str) -> None:
