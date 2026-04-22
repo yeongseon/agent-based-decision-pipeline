@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from typing import Any, cast
 from uuid import UUID
 
@@ -15,7 +15,7 @@ from abdp.data.snapshot_manifest import SnapshotManifest, SnapshotTier
 
 _SNAPSHOT_ID = UUID("11111111-1111-1111-1111-111111111111")
 _PARENT_ID = UUID("22222222-2222-2222-2222-222222222222")
-_CREATED_AT = datetime(2024, 1, 1, tzinfo=timezone.utc)
+_CREATED_AT = datetime(2024, 1, 1, tzinfo=UTC)
 
 
 def _make_manifest(**overrides: Any) -> SnapshotManifest:
