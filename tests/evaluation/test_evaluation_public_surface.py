@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import abdp.evaluation
 import pytest
-from abdp.evaluation.metric import Metric, MetricResult
+from abdp.evaluation.metric import Metric, MetricResult, evaluate_metrics
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("Metric", "MetricResult")
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("Metric", "MetricResult", "evaluate_metrics")
 
 EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
     "Metric": Metric,
     "MetricResult": MetricResult,
+    "evaluate_metrics": evaluate_metrics,
 }
 
 
