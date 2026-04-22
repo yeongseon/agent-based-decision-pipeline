@@ -32,8 +32,6 @@ def _make_manifest(**overrides: Any) -> SnapshotManifest:
     return SnapshotManifest(**defaults)
 
 
-
-
 def test_snapshot_manifest_module_docstring_includes_contract_anchor() -> None:
     doc = sm.__doc__ or ""
     assert "Snapshot manifest contract:" in doc
@@ -54,8 +52,6 @@ def test_snapshot_manifest_class_docstring_includes_contract_anchor() -> None:
     doc = SnapshotManifest.__doc__ or ""
     assert "SnapshotManifest contract:" in doc
     assert "Construction is synchronous only" in doc
-
-
 
 
 def test_snapshot_manifest_constructs_valid_root_record() -> None:
@@ -87,8 +83,6 @@ def test_snapshot_manifest_equal_instances_compare_equal_and_have_same_hash() ->
     assert hash(a) == hash(b)
 
 
-
-
 @pytest.mark.parametrize("tier", ["bronze", "silver", "gold"])
 def test_snapshot_manifest_accepts_each_supported_tier(tier: SnapshotTier) -> None:
     manifest = _make_manifest(tier=tier)
@@ -108,13 +102,9 @@ def test_snapshot_manifest_rejects_unknown_tier() -> None:
         _make_manifest(tier=cast(Any, "platinum"))
 
 
-
-
 def test_snapshot_manifest_rejects_non_uuid_snapshot_id() -> None:
     with pytest.raises(TypeError, match=r"^snapshot_id must be UUID, got str$"):
         _make_manifest(snapshot_id=cast(Any, str(_SNAPSHOT_ID)))
-
-
 
 
 def test_snapshot_manifest_rejects_non_string_storage_key() -> None:
@@ -132,8 +122,6 @@ def test_snapshot_manifest_rejects_whitespace_only_storage_key() -> None:
         _make_manifest(storage_key="   ")
 
 
-
-
 def test_snapshot_manifest_rejects_non_string_content_hash() -> None:
     with pytest.raises(TypeError, match=r"^content_hash must be str, got int$"):
         _make_manifest(content_hash=cast(Any, 1))
@@ -147,8 +135,6 @@ def test_snapshot_manifest_rejects_empty_content_hash() -> None:
 def test_snapshot_manifest_rejects_whitespace_only_content_hash() -> None:
     with pytest.raises(ValueError, match=r"^content_hash must not be empty or whitespace$"):
         _make_manifest(content_hash="   ")
-
-
 
 
 def test_snapshot_manifest_rejects_non_datetime_created_at() -> None:
@@ -165,8 +151,6 @@ def test_snapshot_manifest_rejects_non_utc_created_at() -> None:
     non_utc = datetime(2024, 1, 1, tzinfo=timezone(timedelta(hours=9)))
     with pytest.raises(ValueError, match=r"^created_at must be UTC$"):
         _make_manifest(created_at=non_utc)
-
-
 
 
 def test_snapshot_manifest_delegates_seed_validation_for_non_integer_seed() -> None:
@@ -187,8 +171,6 @@ def test_snapshot_manifest_delegates_seed_validation_for_seed_above_uint32_max()
 def test_snapshot_manifest_delegates_seed_validation_for_bool_seed() -> None:
     with pytest.raises(TypeError, match=r"^Seed must be a non-bool int, got bool$"):
         _make_manifest(seed=cast(Seed, True))
-
-
 
 
 def test_snapshot_manifest_rejects_non_uuid_parent_snapshot_id() -> None:
