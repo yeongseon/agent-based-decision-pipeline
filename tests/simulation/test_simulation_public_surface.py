@@ -11,11 +11,13 @@ from abdp.simulation.action_proposal import ActionProposal
 from abdp.simulation.participant_state import ParticipantState
 from abdp.simulation.segment_state import SegmentState
 from abdp.simulation.snapshot_ref import SnapshotRef
+from abdp.simulation.state import SimulationState
 
 _APPROVED_PUBLIC_NAMES = [
     "ActionProposal",
     "ParticipantState",
     "SegmentState",
+    "SimulationState",
     "SnapshotRef",
 ]
 
@@ -40,4 +42,5 @@ def test_simulation_package_public_surface_matches_dunder_all() -> None:
     assert pkg.ActionProposal is ActionProposal
     assert pkg.ParticipantState is ParticipantState
     assert pkg.SegmentState is SegmentState
+    assert pkg.SimulationState is SimulationState
     assert pkg.SnapshotRef is SnapshotRef
