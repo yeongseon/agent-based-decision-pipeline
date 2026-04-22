@@ -1,3 +1,5 @@
+"""Frozen public surface of the ``abdp.agents`` package."""
+
 from __future__ import annotations
 
 import abdp.agents
@@ -41,3 +43,9 @@ def test_agents_package_star_import_yields_exactly_the_public_surface() -> None:
 def test_agents_package_namespace_exposes_only_approved_public_names() -> None:
     public_attrs = sorted(name for name in vars(abdp.agents) if not name.startswith("_"))
     assert public_attrs == sorted(EXPECTED_PUBLIC_NAMES)
+
+
+def test_agents_package_has_module_docstring() -> None:
+    doc = abdp.agents.__doc__
+    assert isinstance(doc, str)
+    assert doc.strip()
