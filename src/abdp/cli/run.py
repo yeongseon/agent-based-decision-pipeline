@@ -15,6 +15,9 @@ from abdp.reporting import render_json_report
 __all__ = ["parse_seed_arg", "run", "run_command"]
 
 _WARN_STDERR_MESSAGE = "warning: audit completed with WARN status"
+_EXIT_PASS = 0
+_EXIT_FAIL = 1
+_EXIT_LOADER_ERROR = 2
 
 
 def parse_seed_arg(value: str) -> Seed:
@@ -27,19 +30,18 @@ def run(spec: str, *, seed: Seed, output: Path | None = None) -> int:
         audit = factory(seed)
     except LoaderError as exc:
         print(str(exc), file=sys.stderr)
-        return 2
-    content = render_json_report(audit)
-    _write_output(content, output)
-    if audit.summary.overall_status is GateStatus.WARN:
-        print(_WARN_STDERR_MESSAGE, file=sys.stderr)
+        return _EXIT_LOADER_ERROR
+    _write_output(render_json_report(audit), output)
+    _emit_warn_notice_if_needed(audit.summary.overall_status)
     return _exit_code_for_status(audit.summary.overall_status)
 
 
 def run_command(args: argparse.Namespace) -> int:
-    spec = cast(str, args.spec)
-    seed = cast(Seed, args.seed)
-    raw_output = cast("Path | None", args.output)
-    return run(spec, seed=seed, output=raw_output)
+    return run(
+        cast(str, args.spec),
+        seed=cast(Seed, args.seed),
+        output=cast("Path | None", args.output),
+    )
 
 
 def _write_output(content: str, output: Path | None) -> None:
@@ -49,7 +51,12 @@ def _write_output(content: str, output: Path | None) -> None:
         output.write_text(content, encoding="utf-8")
 
 
+def _emit_warn_notice_if_needed(status: GateStatus) -> None:
+    if status is GateStatus.WARN:
+        print(_WARN_STDERR_MESSAGE, file=sys.stderr)
+
+
 def _exit_code_for_status(status: GateStatus) -> int:
     if status is GateStatus.FAIL:
-        return 1
-    return 0
+        return _EXIT_FAIL
+    return _EXIT_PASS
