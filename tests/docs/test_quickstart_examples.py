@@ -25,6 +25,11 @@ REQUIRED_SECTIONS: tuple[str, ...] = (
 PYTHON_BLOCK_PATTERN = re.compile(r"```python\n(.*?)```", re.DOTALL)
 
 
+def _read_python_blocks() -> list[str]:
+    body = QUICKSTART_PATH.read_text(encoding="utf-8")
+    return PYTHON_BLOCK_PATTERN.findall(body)
+
+
 def test_quickstart_file_exists_and_is_non_empty() -> None:
     assert QUICKSTART_PATH.is_file()
     assert QUICKSTART_PATH.read_text(encoding="utf-8").strip()
@@ -38,17 +43,14 @@ def test_quickstart_contains_all_required_sections_in_order() -> None:
 
 
 def test_quickstart_python_blocks_compile() -> None:
-    body = QUICKSTART_PATH.read_text(encoding="utf-8")
-    blocks = PYTHON_BLOCK_PATTERN.findall(body)
+    blocks = _read_python_blocks()
     assert blocks, "expected at least one ```python``` block"
     for index, source in enumerate(blocks):
         compile(source, f"<quickstart-block-{index}>", "exec")
 
 
 def test_quickstart_python_blocks_execute_end_to_end() -> None:
-    body = QUICKSTART_PATH.read_text(encoding="utf-8")
-    blocks = PYTHON_BLOCK_PATTERN.findall(body)
-    program = "\n".join(blocks)
+    program = "\n".join(_read_python_blocks())
     module_name = "_abdp_quickstart_exec"
     module = types.ModuleType(module_name)
     sys.modules[module_name] = module
