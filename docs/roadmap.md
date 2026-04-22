@@ -40,7 +40,7 @@ This roadmap keeps `v0.1` focused on layers 1-3 contracts and points contributor
 - `#101` — `feat(examples): add executable credit underwriting sample`: prove the toolkit on the credit underwriting domain.
 - `#102` — `chore(examples): promote queue scheduling fixture into example module`: relocate the second-domain fixture.
 - `#103` — `feat(examples): add executable queue scheduling sample`: prove the toolkit on the queue scheduling domain.
-- `#104` — `docs: add 10-minute modeling quickstart`: walk a new contributor from zero to a runnable scenario.
+- `#104` — `docs: add 10-minute modeling quickstart`: walk a new contributor from zero to a runnable scenario. See [quickstart.md](quickstart.md).
 - `#105` — `test(agents): freeze agents and scenario public surfaces`: lock both new package namespaces.
 
 ## Explicit non-goals for v0.2
