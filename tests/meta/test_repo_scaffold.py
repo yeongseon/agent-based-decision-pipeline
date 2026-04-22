@@ -4,9 +4,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-EXPECTED_README_TEXT = (
+EXPECTED_README_HEADER = (
     "# agent-based-decision-pipeline\n\nA Python framework for reproducible agent-based decision simulation"
 )
+EXPECTED_README_ROADMAP_LINK = "[Roadmap](docs/roadmap.md)"
 
 REQUIRED_SCAFFOLD_PATHS = (
     "src/abdp/__init__.py",
@@ -23,11 +24,13 @@ PACKAGE_MODULES_WITH_EMPTY_DOCSTRING = (
 )
 
 
-def test_readme_contains_only_project_name_and_tagline() -> None:
+def test_readme_starts_with_tagline_and_links_to_roadmap() -> None:
     readme = REPO_ROOT / "README.md"
 
     assert readme.is_file()
-    assert readme.read_text(encoding="utf-8").strip() == EXPECTED_README_TEXT
+    text = readme.read_text(encoding="utf-8")
+    assert text.startswith(f"{EXPECTED_README_HEADER}\n"), "README must start with project name and tagline"
+    assert EXPECTED_README_ROADMAP_LINK in text, f"README must link to roadmap via {EXPECTED_README_ROADMAP_LINK}"
 
 
 def test_required_scaffold_files_exist() -> None:
