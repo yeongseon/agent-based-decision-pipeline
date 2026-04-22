@@ -33,11 +33,8 @@ SECTION_ANCHORS: dict[str, list[str]] = {
     "## Agent contract boundary": [
         "The minimal agent boundary is observe current state, decide, and propose next actions.",
         "An agent contract may depend on `SimulationState` and return `ActionProposal` values only.",
-        ("The boundary does not include provider clients, prompt formats, tool registries, " "or persistence APIs."),
-        (
-            "Agents stay pluggable per domain because domain meaning lives in the plugin, "
-            "not in the framework contract."
-        ),
+        ("The boundary does not include provider clients, prompt formats, tool registries, or persistence APIs."),
+        ("Agents stay pluggable per domain because domain meaning lives in the plugin, not in the framework contract."),
     ],
     "## Relationship to ActionProposal and ScenarioSpec": [
         (
@@ -119,12 +116,12 @@ def test_agent_model_has_title_and_single_references() -> None:
     text = _read_agent_model_text()
 
     assert text.startswith(f"{TITLE}\n"), f"Expected agent model doc to start with {TITLE!r}"
-    assert (
-        text.count(ARCHITECTURE_REFERENCE) == 1
-    ), f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
-    assert (
-        text.count(SCENARIO_MODEL_REFERENCE) == 1
-    ), f"Expected exactly one scenario model reference: {SCENARIO_MODEL_REFERENCE}"
+    assert text.count(ARCHITECTURE_REFERENCE) == 1, (
+        f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
+    )
+    assert text.count(SCENARIO_MODEL_REFERENCE) == 1, (
+        f"Expected exactly one scenario model reference: {SCENARIO_MODEL_REFERENCE}"
+    )
 
 
 def test_agent_model_has_required_section_headings_in_order() -> None:
