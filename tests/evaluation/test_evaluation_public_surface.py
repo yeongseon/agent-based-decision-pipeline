@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import abdp.evaluation
+import pytest
 
 EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ()
 
@@ -15,10 +16,9 @@ def test_evaluation_package_all_lists_exact_expected_symbols() -> None:
     assert abdp.evaluation.__all__ == EXPECTED_PUBLIC_NAMES
 
 
-def test_evaluation_package_exposes_each_listed_symbol_with_source_identity() -> None:
-    for name in EXPECTED_PUBLIC_NAMES:
-        attr = getattr(abdp.evaluation, name)
-        assert attr is EXPECTED_SOURCE_IDENTITY[name]
+@pytest.mark.parametrize("name", EXPECTED_PUBLIC_NAMES)
+def test_evaluation_package_exposes_symbol_with_source_identity(name: str) -> None:
+    assert getattr(abdp.evaluation, name) is EXPECTED_SOURCE_IDENTITY[name]
 
 
 def test_evaluation_package_star_import_yields_exactly_the_public_surface() -> None:
