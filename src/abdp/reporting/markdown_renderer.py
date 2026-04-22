@@ -12,6 +12,7 @@ newlines in single-line contexts are replaced with ``<br>``.
 """
 
 import json
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from abdp.evidence import AuditLog, ClaimRecord, EvidenceRecord
@@ -61,43 +62,19 @@ def _section_summary(audit: AuditLog[Any, Any, Any]) -> str:
 
 
 def _section_metrics_table(metrics: tuple[MetricResult, ...]) -> str:
-    lines = ["## Metrics", "", "| Metric ID | Value | Details |", "| --- | --- | --- |"]
-    for metric in metrics:
-        lines.append(
-            "| "
-            + " | ".join(
-                (
-                    _table_cell(metric.metric_id),
-                    _table_cell(_inline_json(metric.value)),
-                    _table_cell(_inline_json(metric.details)),
-                )
-            )
-            + " |"
-        )
-    return "\n".join(lines)
+    return _render_table(
+        title="## Metrics",
+        headers=("Metric ID", "Value", "Details"),
+        rows=((metric.metric_id, _inline_json(metric.value), _inline_json(metric.details)) for metric in metrics),
+    )
 
 
 def _section_gates_table(gates: tuple[GateResult, ...]) -> str:
-    lines = [
-        "## Gates",
-        "",
-        "| Gate ID | Status | Reason | Details |",
-        "| --- | --- | --- | --- |",
-    ]
-    for gate in gates:
-        lines.append(
-            "| "
-            + " | ".join(
-                (
-                    _table_cell(gate.gate_id),
-                    _table_cell(gate.status.value),
-                    _table_cell(gate.reason),
-                    _table_cell(_inline_json(gate.details)),
-                )
-            )
-            + " |"
-        )
-    return "\n".join(lines)
+    return _render_table(
+        title="## Gates",
+        headers=("Gate ID", "Status", "Reason", "Details"),
+        rows=((gate.gate_id, gate.status.value, gate.reason, _inline_json(gate.details)) for gate in gates),
+    )
 
 
 def _section_evidence_list(evidence: tuple[EvidenceRecord, ...]) -> str:
@@ -122,6 +99,18 @@ def _section_claims_list(claims: tuple[ClaimRecord, ...]) -> str:
             f"- {claim.claim_id} statement={statement} confidence={claim.confidence}"
             f" evidence={evidence_ids} metadata={metadata}"
         )
+    return "\n".join(lines)
+
+
+def _render_table(*, title: str, headers: Sequence[str], rows: Iterable[Sequence[str]]) -> str:
+    lines = [
+        title,
+        "",
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
+    for row in rows:
+        lines.append("| " + " | ".join(_table_cell(cell) for cell in row) + " |")
     return "\n".join(lines)
 
 
