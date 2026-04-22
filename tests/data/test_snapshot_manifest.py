@@ -54,6 +54,7 @@ def test_snapshot_manifest_module_exports_public_symbols_only() -> None:
 def test_data_package_exports_snapshot_manifest_publicly() -> None:
     assert abdp.data.__all__ == [
         "BronzeContract",
+        "GoldContract",
         "SilverContract",
         "SnapshotManifest",
         "SnapshotTier",
