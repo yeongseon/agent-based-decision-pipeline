@@ -17,7 +17,7 @@ from abdp.simulation import (
     SimulationState,
     SnapshotRef,
 )
-from tests.fixtures.queue_scheduling_domain import (
+from examples.queue_scheduling.domain import (
     Job,
     QueueProposal,
     QueueScenario,
@@ -100,7 +100,7 @@ def test_scenario_satisfies_scenario_spec_protocol() -> None:
     assert scenario.seed == SEED
 
     state = scenario.build_initial_state()
-    assert_type(state, SimulationState[Slot, Worker, QueueProposal])
+    _ = assert_type(state, SimulationState[Slot, Worker, QueueProposal])
     assert isinstance(state, SimulationState)
 
 
@@ -118,9 +118,9 @@ def test_build_initial_state_returns_valid_simulation_state() -> None:
 def test_simulation_state_has_expected_field_types_and_ordering() -> None:
     state = _build_state()
 
-    assert_type(state.segments, tuple[Slot, ...])
-    assert_type(state.participants, tuple[Worker, ...])
-    assert_type(state.pending_actions, tuple[QueueProposal, ...])
+    _ = assert_type(state.segments, tuple[Slot, ...])
+    _ = assert_type(state.participants, tuple[Worker, ...])
+    _ = assert_type(state.pending_actions, tuple[QueueProposal, ...])
 
     assert isinstance(state.segments, tuple)
     assert isinstance(state.participants, tuple)
@@ -141,12 +141,12 @@ def test_simulation_state_has_expected_field_types_and_ordering() -> None:
     )
 
 
-def test_no_abdp_source_files_were_modified_by_this_fixture() -> None:
+def test_no_abdp_source_files_were_modified_by_this_example() -> None:
     fixture_path = Path(inspect.getfile(QueueScenario)).resolve()
     abdp_pkg_path = Path(inspect.getfile(abdp)).resolve().parent
     sim_state_path = Path(inspect.getfile(SimulationState)).resolve()
 
-    assert fixture_path.is_relative_to(REPO_ROOT / "tests")
+    assert fixture_path.is_relative_to(REPO_ROOT / "examples")
     assert not fixture_path.is_relative_to(REPO_ROOT / "src")
     assert abdp_pkg_path == REPO_ROOT / "src" / "abdp"
     assert sim_state_path == REPO_ROOT / "src" / "abdp" / "simulation" / "state.py"

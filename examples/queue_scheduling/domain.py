@@ -1,8 +1,9 @@
-"""Test-local queue scheduling domain proving the v0.1 simulation contracts admit a second domain."""
+"""Queue scheduling example proving the v0.1 simulation contracts admit a second domain."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import override
 from uuid import UUID
 
 from abdp.core.types import JsonValue, Seed
@@ -48,11 +49,20 @@ class QueueProposal:
     payload: JsonValue
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
 class QueueScenario(ScenarioSpec[Slot, Worker, QueueProposal]):
-    scenario_key: str
-    seed: Seed
+    def __init__(self, *, scenario_key: str, seed: Seed) -> None:
+        self._scenario_key = scenario_key
+        self._seed = seed
 
+    @property
+    def scenario_key(self) -> str:
+        return self._scenario_key
+
+    @property
+    def seed(self) -> Seed:
+        return self._seed
+
+    @override
     def build_initial_state(self) -> SimulationState[Slot, Worker, QueueProposal]:
         workers = (
             Worker(participant_id="worker-fast", queue_id="expedite", max_parallel_jobs=1),
