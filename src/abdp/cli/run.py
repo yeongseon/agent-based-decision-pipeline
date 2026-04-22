@@ -1,0 +1,67 @@
+"""``abdp run`` subcommand: load a factory, build the audit log, render JSON."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+from typing import cast
+
+from abdp.cli.loader import LoaderError, load_audit_log_factory
+from abdp.core import Seed, validate_seed
+from abdp.evaluation import GateStatus
+from abdp.reporting import render_json_report
+
+__all__ = ["parse_seed_arg", "run", "run_command"]
+
+_WARN_STDERR_MESSAGE = "warning: audit completed with WARN status"
+_EXIT_PASS = 0
+_EXIT_FAIL = 1
+_EXIT_LOADER_ERROR = 2
+
+
+def parse_seed_arg(value: str) -> Seed:
+    return validate_seed(int(value))
+
+
+def run(spec: str, *, seed: Seed, output: Path | None = None) -> int:
+    try:
+        factory = load_audit_log_factory(spec)
+        audit = factory(seed)
+    except LoaderError as exc:
+        print(str(exc), file=sys.stderr)
+        return _EXIT_LOADER_ERROR
+    _write_output(render_json_report(audit), output)
+    _emit_warn_notice_if_needed(audit.summary.overall_status)
+    return _exit_code_for_status(audit.summary.overall_status)
+
+
+def run_command(args: argparse.Namespace) -> int:
+    return run(
+        cast(str, args.spec),
+        seed=cast(Seed, args.seed),
+        output=cast("Path | None", args.output),
+    )
+
+
+def _write_output(content: str, output: Path | None) -> None:
+    encoded = content.encode("utf-8")
+    if output is None:
+        buffer = getattr(sys.stdout, "buffer", None)
+        if buffer is None:
+            sys.stdout.write(content)
+        else:
+            buffer.write(encoded)
+    else:
+        output.write_bytes(encoded)
+
+
+def _emit_warn_notice_if_needed(status: GateStatus) -> None:
+    if status is GateStatus.WARN:
+        print(_WARN_STDERR_MESSAGE, file=sys.stderr)
+
+
+def _exit_code_for_status(status: GateStatus) -> int:
+    if status is GateStatus.FAIL:
+        return _EXIT_FAIL
+    return _EXIT_PASS
