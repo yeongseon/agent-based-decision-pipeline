@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
-import abdp.reporting
+import pytest
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ()
+import abdp.reporting
+from abdp.reporting.json_renderer import render_json_report
+
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("render_json_report",)
+EXPECTED_SOURCE_IDENTITY: dict[str, object] = {"render_json_report": render_json_report}
 
 
 def test_reporting_package_all_lists_exact_expected_symbols() -> None:
@@ -29,3 +33,8 @@ def test_reporting_package_has_module_docstring() -> None:
     doc = abdp.reporting.__doc__
     assert isinstance(doc, str)
     assert doc.strip()
+
+
+@pytest.mark.parametrize("name", list(EXPECTED_SOURCE_IDENTITY))
+def test_reporting_public_symbols_resolve_to_canonical_definitions(name: str) -> None:
+    assert getattr(abdp.reporting, name) is EXPECTED_SOURCE_IDENTITY[name]
