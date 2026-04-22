@@ -27,6 +27,7 @@ from uuid import UUID
 from abdp.agents import AgentDecision
 from abdp.core import Seed, validate_seed
 from abdp.core.types import JsonObject, JsonValue
+from abdp.data.snapshot_manifest import SnapshotTier
 from abdp.evaluation import EvaluationSummary, GateResult, GateStatus, MetricResult
 from abdp.evidence import AuditLog, ClaimRecord, EvidenceRecord
 from abdp.reporting import render_json_report, render_markdown_report
@@ -57,14 +58,14 @@ def report(path: Path, *, format: ReportFormat, output: Path | None = None) -> i
         text = path.read_text(encoding="utf-8")
         loaded = json.loads(text)
         audit = _audit_log_from_jsonable(loaded)
+        if format == "json":
+            rendered = render_json_report(audit)
+        else:
+            rendered = render_markdown_report(audit)
+        _write_output(rendered, output)
     except (OSError, json.JSONDecodeError, ReportError) as exc:
-        print(str(exc), file=sys.stderr)
+        print(str(exc).splitlines()[0] if str(exc) else type(exc).__name__, file=sys.stderr)
         return _EXIT_ERROR
-    if format == "json":
-        rendered = render_json_report(audit)
-    else:
-        rendered = render_markdown_report(audit)
-    _write_output(rendered, output)
     return _EXIT_OK
 
 
@@ -189,7 +190,7 @@ def _snapshot_ref_from_jsonable(data: Any) -> SnapshotRef:
         raise ReportError(f"snapshot_ref.tier must be bronze/silver/gold, got {tier!r}")
     return SnapshotRef(
         snapshot_id=_require_uuid(obj, "snapshot_id"),
-        tier=cast(Any, tier),
+        tier=cast(SnapshotTier, tier),
         storage_key=_require_str(obj, "storage_key"),
     )
 

@@ -243,6 +243,25 @@ def test_report_help_exits_zero() -> None:
     assert exc_info.value.code == 0
 
 
+def test_report_output_to_missing_parent_directory_exits_two(
+    tmp_path: Path,
+    capsysbinary: pytest.CaptureFixture[bytes],
+) -> None:
+    audit = build_rich_audit_log(Seed(0))
+    src = tmp_path / "in.json"
+    _write_json(audit, src)
+    bad_output = tmp_path / "does" / "not" / "exist" / "out.json"
+
+    exit_code = main(["report", str(src), "--format", "json", "--output", str(bad_output)])
+    captured = capsysbinary.readouterr()
+
+    assert exit_code == 2
+    assert captured.out == b""
+    assert captured.err != b""
+    assert captured.err.count(b"\n") == 1
+    assert not bad_output.exists()
+
+
 def test_report_falls_back_to_text_write_when_stdout_has_no_buffer(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
