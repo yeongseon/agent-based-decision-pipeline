@@ -18,7 +18,11 @@ from abdp.evaluation import EvaluationSummary, GateStatus
 from abdp.evidence import AuditLog, EvidenceRecord
 from abdp.reporting import render_json_report, render_markdown_report
 
-from examples.credit_underwriting.audit import build_audit_log
+from examples.credit_underwriting.audit import (
+    _DECISION_STEP_METRIC_ID,
+    _SELECTED_EVIDENCE_METRIC_ID,
+    build_audit_log,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SEED = Seed(7)
@@ -67,6 +71,17 @@ def test_build_audit_log_summary_passes_gates() -> None:
     assert isinstance(audit.summary, EvaluationSummary)
     assert audit.summary.gates
     assert audit.summary.overall_status is GateStatus.PASS
+
+
+def test_decision_step_metric_is_derived_from_run_independently_of_evidence() -> None:
+    audit = build_audit_log(SEED)
+    metric_values = {m.metric_id: m.value for m in audit.summary.metrics}
+    expected_decision_steps = sum(1 for step in audit.run.steps if step.proposals)
+    assert metric_values[_DECISION_STEP_METRIC_ID] == expected_decision_steps
+    assert metric_values[_SELECTED_EVIDENCE_METRIC_ID] == sum(
+        1 for record in audit.evidence if record.evidence_key == "selected_proposal"
+    )
+    assert metric_values[_DECISION_STEP_METRIC_ID] == metric_values[_SELECTED_EVIDENCE_METRIC_ID]
 
 
 def test_build_audit_log_is_deterministic_for_fixed_seed() -> None:

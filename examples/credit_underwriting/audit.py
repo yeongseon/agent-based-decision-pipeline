@@ -101,9 +101,18 @@ def _proposal_payload(proposal: CreditAction) -> JsonValue:
 
 
 @dataclass(frozen=True)
-class _CountMetric:
-    metric_id: str
+class _DecisionStepMetric:
+    metric_id: str = _DECISION_STEP_METRIC_ID
+
+    def evaluate(self, run: _CreditRun) -> MetricResult:
+        value = sum(1 for step in run.steps if step.proposals)
+        return MetricResult(metric_id=self.metric_id, value=value, details={})
+
+
+@dataclass(frozen=True)
+class _SelectedEvidenceMetric:
     value: int
+    metric_id: str = _SELECTED_EVIDENCE_METRIC_ID
 
     def evaluate(self, run: _CreditRun) -> MetricResult:
         return MetricResult(metric_id=self.metric_id, value=self.value, details={})
@@ -168,12 +177,12 @@ def _int_metric(metrics: Iterable[MetricResult], metric_id: str) -> int | None:
 def _build_metrics(
     evidence: tuple[EvidenceRecord, ...],
 ) -> tuple[Metric[_CreditRun], ...]:
-    decision_count = sum(1 for record in evidence if record.evidence_key == SELECTED_PROPOSAL_KEY)
+    selected_count = sum(1 for record in evidence if record.evidence_key == SELECTED_PROPOSAL_KEY)
     return cast(
         "tuple[Metric[_CreditRun], ...]",
         (
-            _CountMetric(metric_id=_DECISION_STEP_METRIC_ID, value=decision_count),
-            _CountMetric(metric_id=_SELECTED_EVIDENCE_METRIC_ID, value=decision_count),
+            _DecisionStepMetric(),
+            _SelectedEvidenceMetric(value=selected_count),
             _PendingActionMetric(),
         ),
     )
