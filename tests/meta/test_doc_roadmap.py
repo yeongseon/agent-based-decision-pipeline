@@ -7,12 +7,14 @@ ARCHITECTURE_REFERENCE = "[docs/architecture.md](architecture.md)"
 AGENT_MODEL_REFERENCE = "[docs/models/agent-model.md](models/agent-model.md)"
 EVALUATION_REFERENCE = "[docs/evaluation.md](evaluation.md)"
 EVIDENCE_REPORTING_REFERENCE = "[docs/evidence-reporting.md](evidence-reporting.md)"
-MAX_LINE_COUNT = 65
+MAX_LINE_COUNT = 90
 
 REQUIRED_HEADINGS: list[str] = [
     "## Scope and non-goals overview",
     "## v0.1 milestone",
     "## v0.2 milestone themes",
+    "## v0.2 modeling toolkit boundary",
+    "## Explicit non-goals for v0.2",
     "## v0.3 milestone themes",
     "## Explicit non-goals for v0.1",
     "## Revisit triggers for more complex infrastructure",
@@ -52,6 +54,30 @@ SECTION_ANCHORS: dict[str, list[str]] = {
         ("`v0.3` may refine cross-layer composition instead of introducing parallel stacks or competing abstractions."),
         "`v0.3` may improve comparison, audit, and reporting workflows that build on earlier contract work.",
         "`v0.3` is still a roadmap milestone, not a calendar promise.",
+    ],
+    "## v0.2 modeling toolkit boundary": [
+        "`v0.2` ships the modeling toolkit packages `abdp.agents` and `abdp.scenario`",
+        "`#092`",
+        "`#093`",
+        "`#094`",
+        "`#095`",
+        "`#096`",
+        "`#097`",
+        "`#098`",
+        "`#099`",
+        "`#100`",
+        "`#101`",
+        "`#102`",
+        "`#103`",
+        "`#104`",
+        "`#105`",
+    ],
+    "## Explicit non-goals for v0.2": [
+        "No evaluation symbols, gates, or summaries belong in `v0.2`; that work is reserved for `v0.3`.",
+        "No evidence records, claims, audit logs, or stores belong in `v0.2`; that work is reserved for `v0.3`.",
+        "No CLI entry point, run command, or report command belongs in `v0.2`; that work is reserved for `v0.3`.",
+        "No persistence backends or storage adapters belong in `v0.2`; the in-memory toolkit must remain sufficient.",
+        "No domain-specific code belongs under `src/abdp/**`; domain logic lives only in `examples/` and tests.",
     ],
     "## Explicit non-goals for v0.1": [
         "No implementation work beyond layers 1-3 belongs in `v0.1`; that includes layers 4, 6, 7, and 8.",
@@ -116,6 +142,10 @@ REQUIRED_PHRASES: list[str] = [
     "complex infrastructure",
     "file-and-test workflow",
     "contract baseline",
+    "modeling toolkit",
+    "`abdp.agents`",
+    "`abdp.scenario`",
+    "`examples/`",
 ]
 
 FORBIDDEN_SNIPPETS: list[str] = [
@@ -180,16 +210,16 @@ def test_roadmap_has_title_and_single_doc_references() -> None:
     text = _read_roadmap_text()
 
     assert text.startswith(f"{TITLE}\n"), f"Expected roadmap doc to start with {TITLE!r}"
-    assert text.count(ARCHITECTURE_REFERENCE) == 1, (
-        f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
-    )
-    assert text.count(AGENT_MODEL_REFERENCE) == 1, (
-        f"Expected exactly one agent model reference: {AGENT_MODEL_REFERENCE}"
-    )
+    assert (
+        text.count(ARCHITECTURE_REFERENCE) == 1
+    ), f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
+    assert (
+        text.count(AGENT_MODEL_REFERENCE) == 1
+    ), f"Expected exactly one agent model reference: {AGENT_MODEL_REFERENCE}"
     assert text.count(EVALUATION_REFERENCE) == 1, f"Expected exactly one evaluation reference: {EVALUATION_REFERENCE}"
-    assert text.count(EVIDENCE_REPORTING_REFERENCE) == 1, (
-        f"Expected exactly one evidence/reporting reference: {EVIDENCE_REPORTING_REFERENCE}"
-    )
+    assert (
+        text.count(EVIDENCE_REPORTING_REFERENCE) == 1
+    ), f"Expected exactly one evidence/reporting reference: {EVIDENCE_REPORTING_REFERENCE}"
 
 
 def test_roadmap_has_required_section_headings_in_order() -> None:
