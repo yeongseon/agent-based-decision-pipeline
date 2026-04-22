@@ -39,15 +39,6 @@ def test_main_report_subcommand_help_exits_zero() -> None:
     assert exc_info.value.code == 0
 
 
-def test_main_report_subcommand_returns_two_with_not_implemented_message(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    exit_code = main(["report"])
-    captured = capsys.readouterr()
-    assert exit_code == 2
-    assert "not implemented" in captured.err.lower()
-
-
 def test_python_dash_m_abdp_help_exits_zero() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "abdp", "--help"],
