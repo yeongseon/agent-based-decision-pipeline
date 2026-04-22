@@ -210,16 +210,16 @@ def test_roadmap_has_title_and_single_doc_references() -> None:
     text = _read_roadmap_text()
 
     assert text.startswith(f"{TITLE}\n"), f"Expected roadmap doc to start with {TITLE!r}"
-    assert (
-        text.count(ARCHITECTURE_REFERENCE) == 1
-    ), f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
-    assert (
-        text.count(AGENT_MODEL_REFERENCE) == 1
-    ), f"Expected exactly one agent model reference: {AGENT_MODEL_REFERENCE}"
+    assert text.count(ARCHITECTURE_REFERENCE) == 1, (
+        f"Expected exactly one architecture reference: {ARCHITECTURE_REFERENCE}"
+    )
+    assert text.count(AGENT_MODEL_REFERENCE) == 1, (
+        f"Expected exactly one agent model reference: {AGENT_MODEL_REFERENCE}"
+    )
     assert text.count(EVALUATION_REFERENCE) == 1, f"Expected exactly one evaluation reference: {EVALUATION_REFERENCE}"
-    assert (
-        text.count(EVIDENCE_REPORTING_REFERENCE) == 1
-    ), f"Expected exactly one evidence/reporting reference: {EVIDENCE_REPORTING_REFERENCE}"
+    assert text.count(EVIDENCE_REPORTING_REFERENCE) == 1, (
+        f"Expected exactly one evidence/reporting reference: {EVIDENCE_REPORTING_REFERENCE}"
+    )
 
 
 def test_roadmap_has_required_section_headings_in_order() -> None:
