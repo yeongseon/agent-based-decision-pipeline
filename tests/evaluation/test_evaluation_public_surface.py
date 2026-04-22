@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import abdp.evaluation
 import pytest
+from abdp.evaluation.metric import Metric, MetricResult
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ()
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("Metric", "MetricResult")
 
-EXPECTED_SOURCE_IDENTITY: dict[str, object] = {}
+EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "Metric": Metric,
+    "MetricResult": MetricResult,
+}
 
 
 def test_evaluation_package_all_lists_exact_expected_symbols() -> None:
