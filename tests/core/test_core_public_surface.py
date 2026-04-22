@@ -2,14 +2,24 @@
 
 from __future__ import annotations
 
+import sys
+
 import abdp.core
-from abdp.core import connectors as connectors_module
-from abdp.core import hashing as hashing_module
-from abdp.core import ids as ids_module
-from abdp.core import manifest_factory as manifest_factory_module
-from abdp.core import rate_limit as rate_limit_module
-from abdp.core import retry as retry_module
-from abdp.core import types as types_module
+import abdp.core.connectors  # noqa: F401
+import abdp.core.hashing  # noqa: F401
+import abdp.core.ids  # noqa: F401
+import abdp.core.manifest_factory  # noqa: F401
+import abdp.core.rate_limit  # noqa: F401
+import abdp.core.retry  # noqa: F401
+import abdp.core.types  # noqa: F401
+
+connectors_module = sys.modules["abdp.core.connectors"]
+hashing_module = sys.modules["abdp.core.hashing"]
+ids_module = sys.modules["abdp.core.ids"]
+manifest_factory_module = sys.modules["abdp.core.manifest_factory"]
+rate_limit_module = sys.modules["abdp.core.rate_limit"]
+retry_module = sys.modules["abdp.core.retry"]
+types_module = sys.modules["abdp.core.types"]
 
 EXPECTED_PUBLIC_NAMES: list[str] = [
     "Backoff",
