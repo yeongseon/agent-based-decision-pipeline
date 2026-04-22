@@ -58,6 +58,40 @@ This roadmap keeps `v0.1` focused on layers 1-3 contracts and points contributor
 - `v0.3` may improve comparison, audit, and reporting workflows that build on earlier contract work.
 - `v0.3` is still a roadmap milestone, not a calendar promise.
 
+## v0.3 milestone scope
+
+The `v0.3` milestone delivers the auditable simulation surface across `abdp.evaluation`, `abdp.evidence`, `abdp.reporting`, and `abdp.cli`, plus end-to-end audit-flow proofs in both example domains. It is locked by the following 20 issues:
+
+- `#106` — `docs: define v0.3 auditable simulation boundary`: lock the v0.3 scope, reserved keys, and non-goals.
+- `#107` — `test(evaluation): freeze evaluation public surface`: lock the `abdp.evaluation` package namespace.
+- `#108` — `feat(evaluation): add metric protocol and result record`: introduce the metric contract.
+- `#109` — `feat(evaluation): add ordered metric evaluation helper`: deterministic metric application.
+- `#110` — `feat(evaluation): add gate protocol and result record`: introduce the gate contract.
+- `#111` — `feat(evaluation): add gate evaluation and summary aggregation`: combine metric and gate outcomes.
+- `#112` — `test(evidence): freeze evidence public surface`: lock the `abdp.evidence` package namespace.
+- `#113` — `feat(evidence): add EvidenceRecord`: minimal evidence row contract.
+- `#114` — `feat(evidence): add ClaimRecord`: claim row referencing evidence rows.
+- `#115` — `feat(evidence): add AuditLog bundle`: deterministic audit-log container.
+- `#116` — `feat(evidence): add EvidenceStore protocol`: abstract storage contract.
+- `#117` — `feat(evidence): add in-memory evidence store`: reference implementation.
+- `#118` — `test(reporting): freeze reporting public surface`: lock the `abdp.reporting` package namespace.
+- `#119` — `feat(reporting): add deterministic JSON renderer`: machine-readable report output.
+- `#120` — `feat(reporting): add deterministic Markdown renderer`: human-readable report output.
+- `#121` — `feat(cli): add CLI entrypoint and import-path loader`: shared `abdp.cli` command surface.
+- `#122` — `feat(cli): add CLI run command`: execute scenarios from the terminal.
+- `#123` — `feat(cli): add CLI report command`: render audit logs from the terminal.
+- `#124` — `test(examples): prove credit underwriting audit flow`: end-to-end evidence and report assertion in the credit underwriting example.
+- `#125` — `test(examples): prove queue scheduling audit flow`: end-to-end evidence and report assertion in the queue scheduling example.
+
+Reserved evidence keys: `evidence_key="selected_proposal"` is the mandatory key recording which proposal a resolver applied at each step; all v0.3 audit flows must emit it and all v0.3 reporting renderers must surface it.
+
+## Explicit non-goals for v0.3
+
+- No remote storage, network adapters, or hosted services belong in `v0.3`; the in-memory evidence store remains the reference.
+- No plugin system, dynamic discovery, or external entry-point registration belongs in `v0.3`; CLI loaders use explicit import paths only.
+- No web UI, dashboard, browser viewer, or HTML output belongs in `v0.3`; reporting stays JSON and Markdown.
+- No domain-specific code belongs under `src/abdp/**` in `v0.3`; example audit flows live only in `examples/` and `tests/`.
+
 ## Explicit non-goals for v0.1
 
 - No implementation work beyond layers 1-3 belongs in `v0.1`; that includes layers 4, 6, 7, and 8.
