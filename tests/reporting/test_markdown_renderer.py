@@ -1,12 +1,13 @@
 """Tests for ``abdp.reporting.render_markdown_report``."""
 
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta, timezone
+from typing import cast
 from uuid import UUID
 
 import pytest
 
 from abdp.core import Seed
+from abdp.core.types import JsonValue
 from abdp.evaluation import EvaluationSummary, GateStatus
 from abdp.evaluation.gate import GateResult
 from abdp.evaluation.metric import MetricResult
@@ -234,12 +235,14 @@ def test_render_markdown_report_golden_vector() -> None:
         "\n"
         "## Claims\n"
         "\n"
-        '- 00000000-0000-0000-0000-000000000064 statement="s" confidence=0.5 evidence=["00000000-0000-0000-0000-000000000001"] metadata={}\n'
+        '- 00000000-0000-0000-0000-000000000064 statement="s" confidence=0.5'
+        ' evidence=["00000000-0000-0000-0000-000000000001"] metadata={}\n'
     )
     assert rendered == expected
 
 
 def test_render_markdown_report_handles_payload_with_non_string_dict_key() -> None:
-    bad_metric = MetricResult(metric_id="m", value={1: "v"}, details={})  # type: ignore[dict-item]
+    bad_value = cast(JsonValue, {1: "v"})
+    bad_metric = MetricResult(metric_id="m", value=bad_value, details={})
     with pytest.raises(TypeError, match="dict key"):
         render_markdown_report(_audit(summary=_summary(metrics=(bad_metric,))))
