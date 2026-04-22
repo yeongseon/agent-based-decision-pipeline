@@ -7,12 +7,13 @@ caller via the ``R`` type parameter) into a single ``MetricResult``. The
 auxiliary evidence such as per-segment breakdowns.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
 from abdp.core.types import JsonObject, JsonValue
 
-__all__ = ["Metric", "MetricResult"]
+__all__ = ["Metric", "MetricResult", "evaluate_metrics"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,3 +41,15 @@ class Metric[R](Protocol):
         """Return the metric's :class:`MetricResult` for ``run``."""
 
         ...  # pragma: no cover
+
+
+def evaluate_metrics[R](metrics: Iterable[Metric[R]], run: R) -> tuple[MetricResult, ...]:
+    """Evaluate ``metrics`` against ``run`` and return their results in iteration order.
+
+    The output tuple's order matches the iteration order of ``metrics``; results
+    are deterministic when both the iterable and each metric's ``evaluate``
+    are deterministic for the same ``run``. The helper does not detect
+    duplicate ``metric_id`` values.
+    """
+
+    return tuple(metric.evaluate(run) for metric in metrics)
