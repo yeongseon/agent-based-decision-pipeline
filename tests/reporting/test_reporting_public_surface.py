@@ -6,9 +6,13 @@ import pytest
 
 import abdp.reporting
 from abdp.reporting.json_renderer import render_json_report
+from abdp.reporting.markdown_renderer import render_markdown_report
 
-EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("render_json_report",)
-EXPECTED_SOURCE_IDENTITY: dict[str, object] = {"render_json_report": render_json_report}
+EXPECTED_PUBLIC_NAMES: tuple[str, ...] = ("render_json_report", "render_markdown_report")
+EXPECTED_SOURCE_IDENTITY: dict[str, object] = {
+    "render_json_report": render_json_report,
+    "render_markdown_report": render_markdown_report,
+}
 
 
 def test_reporting_package_all_lists_exact_expected_symbols() -> None:
