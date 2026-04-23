@@ -13,28 +13,35 @@ so their outputs are diffable artifacts.
 ## Credit underwriting
 
 A two-officer pipeline that classifies borrowers into risk tiers and emits
-one `selected_proposal` evidence record per non-empty decision step. Run
+one `selected_proposal` evidence record per non-empty proposal step. Run
 locally with `python -m examples.credit_underwriting` for the short stdout
-summary, or import `build_audit_log` from
-[`examples/credit_underwriting`](../../examples/credit_underwriting) to obtain
-a full `AuditLog` whose evidence stream is keyed by `selected_proposal`.
+summary, or call the audit factory at
+`examples.credit_underwriting.audit:build_audit_log` to obtain a full
+`AuditLog` whose evidence stream is keyed by `selected_proposal`. The
+factory is exposed at the submodule path because
+[`examples/credit_underwriting`](../../examples/credit_underwriting)
+deliberately keeps its package `__init__` empty.
 
 The frozen JSON snapshot below was rendered with `Seed(7)` and is the same
-artifact `abdp run examples.credit_underwriting.audit:build_audit_log
---seed 7` would produce.
+artifact that
+`abdp run examples.credit_underwriting.audit:build_audit_log --seed 7`
+would produce.
 
 ## Queue scheduling
 
 A latency-baseline scheduler that dispatches queued requests across worker
-agents and emits one `selected_proposal` evidence record per dispatched
-proposal. Run locally with `python -m examples.queue_scheduling`, or import
-`build_audit_log` from
-[`examples/queue_scheduling`](../../examples/queue_scheduling) to obtain the
-corresponding `AuditLog`.
+agents and emits one `selected_proposal` evidence record per
+non-empty proposal step (steps that select no candidate emit no evidence).
+Run locally with `python -m examples.queue_scheduling`, or call the audit
+factory at `examples.queue_scheduling.audit:build_audit_log` to obtain the
+corresponding `AuditLog`. The factory is exposed at the submodule path
+because [`examples/queue_scheduling`](../../examples/queue_scheduling)
+deliberately keeps its package `__init__` empty.
 
 The frozen JSON snapshot below was rendered with `Seed(11)` and is the same
-artifact `abdp run examples.queue_scheduling.audit:build_audit_log
---seed 11` would produce.
+artifact that
+`abdp run examples.queue_scheduling.audit:build_audit_log --seed 11`
+would produce.
 
 ## Frozen outputs
 
