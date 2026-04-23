@@ -29,9 +29,9 @@ def test_credit_underwriting_frozen_output_matches_fresh_render() -> None:
     committed_text, committed_obj = _load_committed(CREDIT_OUTPUT_PATH)
     fresh_text = render_json_report(build_credit_audit(CREDIT_SEED))
 
-    assert (
-        committed_text == fresh_text
-    ), "credit_underwriting_report.json is stale; regenerate from build_audit_log(Seed(7))"
+    assert committed_text == fresh_text, (
+        "credit_underwriting_report.json is stale; regenerate from build_audit_log(Seed(7))"
+    )
     assert committed_obj["scenario_key"] == "credit-underwriting-baseline"
     assert committed_obj["seed"] == int(CREDIT_SEED)
 
@@ -40,9 +40,9 @@ def test_queue_scheduling_frozen_output_matches_fresh_render() -> None:
     committed_text, committed_obj = _load_committed(QUEUE_OUTPUT_PATH)
     fresh_text = render_json_report(build_queue_audit(QUEUE_SEED))
 
-    assert (
-        committed_text == fresh_text
-    ), "queue_scheduling_report.json is stale; regenerate from build_audit_log(Seed(11))"
+    assert committed_text == fresh_text, (
+        "queue_scheduling_report.json is stale; regenerate from build_audit_log(Seed(11))"
+    )
     assert committed_obj["scenario_key"] == "latency-baseline"
     assert committed_obj["seed"] == int(QUEUE_SEED)
 

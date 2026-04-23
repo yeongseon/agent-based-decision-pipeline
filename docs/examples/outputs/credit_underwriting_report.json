@@ -1,0 +1,471 @@
+{
+  "claims": [],
+  "evidence": [
+    {
+      "agent_id": "officer-prime",
+      "created_at": "2026-01-01T00:00:00+00:00",
+      "evidence_id": "75876f6b-c5e4-50c1-a344-25679b350b0d",
+      "evidence_key": "selected_proposal",
+      "payload": {
+        "action_key": "escalate",
+        "actor_id": "officer-prime",
+        "payload": {
+          "case_id": "case-prior-001",
+          "reason": "carry_over_review"
+        },
+        "proposal_id": "escalate-prior-001"
+      },
+      "step_index": 0
+    },
+    {
+      "agent_id": "officer-prime",
+      "created_at": "2026-01-01T00:00:01+00:00",
+      "evidence_id": "9c42945e-8ea8-5dab-8463-02b8f463691f",
+      "evidence_key": "selected_proposal",
+      "payload": {
+        "action_key": "escalate",
+        "actor_id": "officer-prime",
+        "payload": {
+          "case_id": "case-borrower-frank",
+          "reason": "borderline_request_info"
+        },
+        "proposal_id": "escalate-borrower-frank-step1"
+      },
+      "step_index": 1
+    }
+  ],
+  "run": {
+    "final_state": {
+      "participants": [
+        {
+          "participant_id": "borrower-alice"
+        },
+        {
+          "participant_id": "borrower-bob"
+        },
+        {
+          "participant_id": "borrower-frank"
+        },
+        {
+          "participant_id": "borrower-carol"
+        },
+        {
+          "participant_id": "borrower-dave"
+        },
+        {
+          "participant_id": "borrower-grace"
+        }
+      ],
+      "pending_actions": [],
+      "seed": 7,
+      "segments": [
+        {
+          "participant_ids": [],
+          "segment_id": "tier-prime"
+        },
+        {
+          "participant_ids": [],
+          "segment_id": "tier-subprime"
+        }
+      ],
+      "snapshot_ref": {
+        "snapshot_id": "33333333-3333-3333-3333-333333333333",
+        "storage_key": "snapshots/bronze/credit-underwriting-initial.json",
+        "tier": "bronze"
+      },
+      "step_index": 2
+    },
+    "scenario_key": "credit-underwriting-baseline",
+    "seed": 7,
+    "steps": [
+      {
+        "decisions": [
+          {
+            "agent_id": "officer-prime",
+            "proposals": [
+              {
+                "action_key": "approve",
+                "actor_id": "officer-prime",
+                "payload": {
+                  "borrower_id": "borrower-alice",
+                  "credit_score": 780,
+                  "requested_amount_cents": 3000000
+                },
+                "proposal_id": "decision-prime-borrower-alice-step0"
+              },
+              {
+                "action_key": "decline",
+                "actor_id": "officer-prime",
+                "payload": {
+                  "borrower_id": "borrower-bob",
+                  "credit_score": 700,
+                  "requested_amount_cents": 4000000
+                },
+                "proposal_id": "decision-prime-borrower-bob-step0"
+              },
+              {
+                "action_key": "request_info",
+                "actor_id": "officer-prime",
+                "payload": {
+                  "borrower_id": "borrower-frank",
+                  "credit_score": 750,
+                  "requested_amount_cents": 6000000
+                },
+                "proposal_id": "decision-prime-borrower-frank-step0"
+              }
+            ]
+          },
+          {
+            "agent_id": "officer-subprime",
+            "proposals": [
+              {
+                "action_key": "approve",
+                "actor_id": "officer-subprime",
+                "payload": {
+                  "borrower_id": "borrower-carol",
+                  "credit_score": 620,
+                  "requested_amount_cents": 800000
+                },
+                "proposal_id": "decision-subprime-borrower-carol-step0"
+              },
+              {
+                "action_key": "decline",
+                "actor_id": "officer-subprime",
+                "payload": {
+                  "borrower_id": "borrower-dave",
+                  "credit_score": 550,
+                  "requested_amount_cents": 1200000
+                },
+                "proposal_id": "decision-subprime-borrower-dave-step0"
+              },
+              {
+                "action_key": "request_info",
+                "actor_id": "officer-subprime",
+                "payload": {
+                  "borrower_id": "borrower-grace",
+                  "credit_score": 600,
+                  "requested_amount_cents": 1500000
+                },
+                "proposal_id": "decision-subprime-borrower-grace-step0"
+              }
+            ]
+          }
+        ],
+        "proposals": [
+          {
+            "action_key": "escalate",
+            "actor_id": "officer-prime",
+            "payload": {
+              "case_id": "case-prior-001",
+              "reason": "carry_over_review"
+            },
+            "proposal_id": "escalate-prior-001"
+          },
+          {
+            "action_key": "approve",
+            "actor_id": "officer-prime",
+            "payload": {
+              "borrower_id": "borrower-alice",
+              "credit_score": 780,
+              "requested_amount_cents": 3000000
+            },
+            "proposal_id": "decision-prime-borrower-alice-step0"
+          },
+          {
+            "action_key": "decline",
+            "actor_id": "officer-prime",
+            "payload": {
+              "borrower_id": "borrower-bob",
+              "credit_score": 700,
+              "requested_amount_cents": 4000000
+            },
+            "proposal_id": "decision-prime-borrower-bob-step0"
+          },
+          {
+            "action_key": "request_info",
+            "actor_id": "officer-prime",
+            "payload": {
+              "borrower_id": "borrower-frank",
+              "credit_score": 750,
+              "requested_amount_cents": 6000000
+            },
+            "proposal_id": "decision-prime-borrower-frank-step0"
+          },
+          {
+            "action_key": "approve",
+            "actor_id": "officer-subprime",
+            "payload": {
+              "borrower_id": "borrower-carol",
+              "credit_score": 620,
+              "requested_amount_cents": 800000
+            },
+            "proposal_id": "decision-subprime-borrower-carol-step0"
+          },
+          {
+            "action_key": "decline",
+            "actor_id": "officer-subprime",
+            "payload": {
+              "borrower_id": "borrower-dave",
+              "credit_score": 550,
+              "requested_amount_cents": 1200000
+            },
+            "proposal_id": "decision-subprime-borrower-dave-step0"
+          },
+          {
+            "action_key": "request_info",
+            "actor_id": "officer-subprime",
+            "payload": {
+              "borrower_id": "borrower-grace",
+              "credit_score": 600,
+              "requested_amount_cents": 1500000
+            },
+            "proposal_id": "decision-subprime-borrower-grace-step0"
+          }
+        ],
+        "state": {
+          "participants": [
+            {
+              "participant_id": "borrower-alice"
+            },
+            {
+              "participant_id": "borrower-bob"
+            },
+            {
+              "participant_id": "borrower-frank"
+            },
+            {
+              "participant_id": "borrower-carol"
+            },
+            {
+              "participant_id": "borrower-dave"
+            },
+            {
+              "participant_id": "borrower-grace"
+            }
+          ],
+          "pending_actions": [
+            {
+              "action_key": "escalate",
+              "actor_id": "officer-prime",
+              "payload": {
+                "case_id": "case-prior-001",
+                "reason": "carry_over_review"
+              },
+              "proposal_id": "escalate-prior-001"
+            }
+          ],
+          "seed": 7,
+          "segments": [
+            {
+              "participant_ids": [
+                "borrower-alice",
+                "borrower-bob",
+                "borrower-frank"
+              ],
+              "segment_id": "tier-prime"
+            },
+            {
+              "participant_ids": [
+                "borrower-carol",
+                "borrower-dave",
+                "borrower-grace"
+              ],
+              "segment_id": "tier-subprime"
+            }
+          ],
+          "snapshot_ref": {
+            "snapshot_id": "33333333-3333-3333-3333-333333333333",
+            "storage_key": "snapshots/bronze/credit-underwriting-initial.json",
+            "tier": "bronze"
+          },
+          "step_index": 0
+        }
+      },
+      {
+        "decisions": [
+          {
+            "agent_id": "officer-prime",
+            "proposals": []
+          },
+          {
+            "agent_id": "officer-subprime",
+            "proposals": []
+          }
+        ],
+        "proposals": [
+          {
+            "action_key": "escalate",
+            "actor_id": "officer-prime",
+            "payload": {
+              "case_id": "case-borrower-frank",
+              "reason": "borderline_request_info"
+            },
+            "proposal_id": "escalate-borrower-frank-step1"
+          },
+          {
+            "action_key": "escalate",
+            "actor_id": "officer-subprime",
+            "payload": {
+              "case_id": "case-borrower-grace",
+              "reason": "borderline_request_info"
+            },
+            "proposal_id": "escalate-borrower-grace-step1"
+          }
+        ],
+        "state": {
+          "participants": [
+            {
+              "participant_id": "borrower-alice"
+            },
+            {
+              "participant_id": "borrower-bob"
+            },
+            {
+              "participant_id": "borrower-frank"
+            },
+            {
+              "participant_id": "borrower-carol"
+            },
+            {
+              "participant_id": "borrower-dave"
+            },
+            {
+              "participant_id": "borrower-grace"
+            }
+          ],
+          "pending_actions": [
+            {
+              "action_key": "escalate",
+              "actor_id": "officer-prime",
+              "payload": {
+                "case_id": "case-borrower-frank",
+                "reason": "borderline_request_info"
+              },
+              "proposal_id": "escalate-borrower-frank-step1"
+            },
+            {
+              "action_key": "escalate",
+              "actor_id": "officer-subprime",
+              "payload": {
+                "case_id": "case-borrower-grace",
+                "reason": "borderline_request_info"
+              },
+              "proposal_id": "escalate-borrower-grace-step1"
+            }
+          ],
+          "seed": 7,
+          "segments": [
+            {
+              "participant_ids": [],
+              "segment_id": "tier-prime"
+            },
+            {
+              "participant_ids": [],
+              "segment_id": "tier-subprime"
+            }
+          ],
+          "snapshot_ref": {
+            "snapshot_id": "33333333-3333-3333-3333-333333333333",
+            "storage_key": "snapshots/bronze/credit-underwriting-initial.json",
+            "tier": "bronze"
+          },
+          "step_index": 1
+        }
+      },
+      {
+        "decisions": [
+          {
+            "agent_id": "officer-prime",
+            "proposals": []
+          },
+          {
+            "agent_id": "officer-subprime",
+            "proposals": []
+          }
+        ],
+        "proposals": [],
+        "state": {
+          "participants": [
+            {
+              "participant_id": "borrower-alice"
+            },
+            {
+              "participant_id": "borrower-bob"
+            },
+            {
+              "participant_id": "borrower-frank"
+            },
+            {
+              "participant_id": "borrower-carol"
+            },
+            {
+              "participant_id": "borrower-dave"
+            },
+            {
+              "participant_id": "borrower-grace"
+            }
+          ],
+          "pending_actions": [],
+          "seed": 7,
+          "segments": [
+            {
+              "participant_ids": [],
+              "segment_id": "tier-prime"
+            },
+            {
+              "participant_ids": [],
+              "segment_id": "tier-subprime"
+            }
+          ],
+          "snapshot_ref": {
+            "snapshot_id": "33333333-3333-3333-3333-333333333333",
+            "storage_key": "snapshots/bronze/credit-underwriting-initial.json",
+            "tier": "bronze"
+          },
+          "step_index": 2
+        }
+      }
+    ]
+  },
+  "scenario_key": "credit-underwriting-baseline",
+  "seed": 7,
+  "summary": {
+    "gates": [
+      {
+        "details": {
+          "decision_steps": 2,
+          "selected_evidence": 2
+        },
+        "gate_id": "selected_proposal_coverage",
+        "reason": "selected_proposal evidence covers every decision step",
+        "status": "pass"
+      },
+      {
+        "details": {
+          "terminal_pending_actions": 0
+        },
+        "gate_id": "terminal_pending_drained",
+        "reason": "terminal state has no pending actions",
+        "status": "pass"
+      }
+    ],
+    "metrics": [
+      {
+        "details": {},
+        "metric_id": "decision_step_count",
+        "value": 2
+      },
+      {
+        "details": {},
+        "metric_id": "selected_proposal_evidence_count",
+        "value": 2
+      },
+      {
+        "details": {},
+        "metric_id": "terminal_pending_action_count",
+        "value": 0
+      }
+    ],
+    "overall_status": "pass"
+  }
+}
