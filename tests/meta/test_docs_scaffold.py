@@ -15,7 +15,7 @@ README_PATHS: tuple[Path, ...] = (
     ADR_README_PATH,
 )
 
-MAX_README_LINES = 10
+MAX_README_LINES = 11
 
 EXPECTED_DOCS_INDEX_SNIPPETS = (
     "# Docs",
@@ -24,6 +24,7 @@ EXPECTED_DOCS_INDEX_SNIPPETS = (
     "- [Models](models/README.md) — Conceptual model documentation for abdp.",
     "- [Examples](examples/README.md) — Worked examples and tutorials.",
     "- [ADRs](adr/README.md) — Architecture decision records and template.",
+    "- [CLI](cli.md) — Command-line usage reference for `abdp run` and `abdp report`.",
 )
 
 EXPECTED_SUBSECTION_TITLES: tuple[tuple[Path, str], ...] = (
