@@ -1,6 +1,6 @@
 # 10-Minute Modeling Quickstart
 
-Build your first reproducible scenario with `abdp.agents` and `abdp.scenario`. The snippets below form one self-contained, runnable program; copy them top-to-bottom into a single file. For a richer, multi-tier worked example see [`examples/credit_underwriting`](../examples/credit_underwriting).
+Build your first reproducible scenario with `abdp.agents` and `abdp.scenario`. The snippets below form one self-contained, runnable program; copy them top-to-bottom into a single file. For a richer, multi-tier worked example see [`examples/credit_underwriting`](../examples/credit_underwriting). For the CLI surface, see [`docs/cli.md`](cli.md).
 
 ## Install
 
