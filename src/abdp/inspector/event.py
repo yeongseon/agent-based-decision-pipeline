@@ -52,6 +52,10 @@ class TraceEvent:
             raise ValueError("step_index must be non-negative")
         if self.timestamp_ns < 0:
             raise ValueError("timestamp_ns must be non-negative")
+        if not isinstance(self.attributes, Mapping):
+            raise TypeError(
+                f"attributes must be a Mapping[str, TraceAttributeValue], got {type(self.attributes).__name__}"
+            )
         frozen: dict[str, TraceAttributeValue] = {}
         for key, value in self.attributes.items():
             if not isinstance(key, str):
