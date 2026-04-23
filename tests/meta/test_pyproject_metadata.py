@@ -7,7 +7,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT_PATH = REPO_ROOT / "pyproject.toml"
 
 EXPECTED_PROJECT_NAME = "abdp"
-EXPECTED_PROJECT_VERSION = "0.1.0.dev0"
+EXPECTED_PROJECT_VERSION = "0.3.0"
 EXPECTED_PROJECT_DESCRIPTION = "A Python framework for reproducible agent-based decision simulation"
 EXPECTED_PROJECT_README = "README.md"
 EXPECTED_PROJECT_REQUIRES_PYTHON = ">=3.12"
@@ -50,3 +50,13 @@ def test_project_name_matches_src_layout_package_directory() -> None:
     assert _load_pyproject()["project"]["name"] == package_root.name
     assert package_root.is_dir()
     assert (package_root / "__init__.py").is_file()
+
+
+def test_runtime_version_matches_declared_project_version() -> None:
+    from abdp import __version__, get_version
+
+    declared_version = _load_pyproject()["project"]["version"]
+
+    assert declared_version == EXPECTED_PROJECT_VERSION
+    assert get_version() == declared_version
+    assert __version__ == declared_version
