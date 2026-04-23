@@ -17,6 +17,7 @@ README_PATHS: tuple[Path, ...] = (
 
 MAX_DOCS_INDEX_LINES = 10
 MAX_SUBSECTION_README_LINES = 10
+MAX_EXAMPLES_INDEX_LINES = 80
 
 EXPECTED_DOCS_INDEX_SNIPPETS = (
     "# Docs",
@@ -35,7 +36,7 @@ EXPECTED_SUBSECTION_TITLES: tuple[tuple[Path, str], ...] = (
     (ADR_README_PATH, "# ADRs"),
 )
 
-EXPECTED_SUBSECTION_README_SNIPPETS: tuple[tuple[Path, tuple[str, ...]], ...] = (
+EXPECTED_PLACEHOLDER_SUBSECTION_README_SNIPPETS: tuple[tuple[Path, tuple[str, ...]], ...] = (
     (
         DEVELOPMENT_README_PATH,
         (
@@ -53,14 +54,6 @@ EXPECTED_SUBSECTION_README_SNIPPETS: tuple[tuple[Path, tuple[str, ...]], ...] = 
         ),
     ),
     (
-        EXAMPLES_README_PATH,
-        (
-            "# Examples",
-            "Placeholder only. Worked examples and tutorials live here.",
-            "Detailed expansion is deferred to #044.",
-        ),
-    ),
-    (
         ADR_README_PATH,
         (
             "# ADRs",
@@ -69,6 +62,51 @@ EXPECTED_SUBSECTION_README_SNIPPETS: tuple[tuple[Path, tuple[str, ...]], ...] = 
             "Directory index details are deferred to #044.",
         ),
     ),
+)
+
+EXPECTED_EXAMPLES_INDEX_SECTIONS: tuple[str, ...] = (
+    "## Credit underwriting",
+    "## Queue scheduling",
+    "## Frozen outputs",
+)
+
+EXPECTED_EXAMPLES_INDEX_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "## Credit underwriting",
+        (
+            "python -m examples.credit_underwriting",
+            "[`examples/credit_underwriting`](../../examples/credit_underwriting)",
+            "`selected_proposal`",
+        ),
+    ),
+    (
+        "## Queue scheduling",
+        (
+            "python -m examples.queue_scheduling",
+            "[`examples/queue_scheduling`](../../examples/queue_scheduling)",
+            "`selected_proposal`",
+        ),
+    ),
+    (
+        "## Frozen outputs",
+        (
+            "[`outputs/credit_underwriting_report.json`](outputs/credit_underwriting_report.json)",
+            "[`outputs/queue_scheduling_report.json`](outputs/queue_scheduling_report.json)",
+            "byte-identical",
+        ),
+    ),
+)
+
+FORBIDDEN_EXAMPLES_INDEX_SNIPPETS: tuple[str, ...] = (
+    "coming soon",
+    "future example",
+    "will support",
+    "production-ready",
+    "enterprise",
+    "v1.0",
+    "milestone sequencing",
+    "Placeholder only.",
+    "Detailed expansion is deferred to #044.",
 )
 
 EXPECTED_ADR_TEMPLATE_POINTER = "Start from [0000-template.md](0000-template.md) when writing a new ADR."
@@ -105,13 +143,40 @@ def test_subsection_readmes_declare_expected_titles() -> None:
         assert expected_title in _read_text(path)
 
 
-def test_subsection_readmes_remain_placeholders_and_stay_short() -> None:
-    for path, expected_snippets in EXPECTED_SUBSECTION_README_SNIPPETS:
+def test_placeholder_subsection_readmes_remain_short() -> None:
+    for path, expected_snippets in EXPECTED_PLACEHOLDER_SUBSECTION_README_SNIPPETS:
         readme_text = _read_text(path)
 
         _assert_snippets_in_order(readme_text, expected_snippets)
 
         assert len(readme_text.splitlines()) < MAX_SUBSECTION_README_LINES
+
+
+def test_examples_index_surfaces_runnable_examples_and_frozen_outputs() -> None:
+    text = _read_text(EXAMPLES_README_PATH)
+
+    _assert_snippets_in_order(text, EXPECTED_EXAMPLES_INDEX_SECTIONS)
+
+    for index, (heading, snippets) in enumerate(EXPECTED_EXAMPLES_INDEX_SNIPPETS):
+        section_start = text.index(heading)
+        if index + 1 < len(EXPECTED_EXAMPLES_INDEX_SNIPPETS):
+            next_heading = EXPECTED_EXAMPLES_INDEX_SNIPPETS[index + 1][0]
+            section_end = text.index(next_heading, section_start + len(heading))
+        else:
+            section_end = len(text)
+
+        section_text = text[section_start:section_end]
+        for snippet in snippets:
+            assert snippet in section_text, f"{heading}: {snippet}"
+
+
+def test_examples_index_avoids_forbidden_scope_and_stays_within_line_budget() -> None:
+    text = _read_text(EXAMPLES_README_PATH)
+
+    for snippet in FORBIDDEN_EXAMPLES_INDEX_SNIPPETS:
+        assert snippet not in text, snippet
+
+    assert len(text.splitlines()) <= MAX_EXAMPLES_INDEX_LINES
 
 
 def test_adr_readme_references_template() -> None:
