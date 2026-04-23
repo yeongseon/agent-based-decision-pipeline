@@ -31,8 +31,11 @@ SECTION_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "## Getting started",
         (
+            "pip install -e .",
             "[10-minute modeling quickstart](docs/quickstart.md)",
-            "pip install",
+            "`abdp.agents`",
+            "`abdp.scenario`",
+            "`ScenarioRunner`",
         ),
     ),
     (
