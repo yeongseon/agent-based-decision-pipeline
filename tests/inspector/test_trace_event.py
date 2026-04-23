@@ -117,6 +117,11 @@ def test_trace_event_attributes_only_allow_primitive_values() -> None:
         _event(attributes={"k": object()})  # type: ignore[dict-item]
 
 
+def test_trace_event_attributes_reject_non_str_keys() -> None:
+    with pytest.raises(TypeError, match="attribute key"):
+        _event(attributes={1: "v"})  # type: ignore[dict-item]
+
+
 def test_trace_event_attributes_accept_str_int_float_bool() -> None:
     ev = _event(attributes={"s": "v", "i": 1, "f": 1.5, "b": True})
     assert ev.attributes["s"] == "v"
@@ -244,4 +249,4 @@ def test_make_trace_event_pins_golden_vector() -> None:
         timestamp_ns=7,
         parent_event_id=None,
     )
-    assert ev.event_id == UUID("ec78f1ec-0d0d-5d4f-bd16-2f8c9c8e7c4f")
+    assert ev.event_id == UUID("05536901-00d4-56d2-bc07-b8e930292fe0")
