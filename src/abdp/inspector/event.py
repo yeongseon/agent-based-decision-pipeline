@@ -61,9 +61,7 @@ class TraceEvent:
             if not isinstance(key, str):
                 raise TypeError(f"attribute key must be str, got {type(key).__name__}")
             if not isinstance(value, str | int | float | bool):
-                raise TypeError(
-                    f"attribute value for {key!r} must be str|int|float|bool, " f"got {type(value).__name__}"
-                )
+                raise TypeError(f"attribute value for {key!r} must be str|int|float|bool, got {type(value).__name__}")
             if isinstance(value, float) and not math.isfinite(value):
                 raise ValueError(f"attribute value for {key!r} must be a finite float, got {value!r}")
             frozen[key] = value
