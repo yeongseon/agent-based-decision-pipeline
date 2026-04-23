@@ -59,6 +59,11 @@ FORBIDDEN_SNIPPETS: list[str] = [
     "Conventional Commits",
 ]
 
+HISTORICAL_CALLOUT_LINE = (
+    "> **Historical (v0.1 baseline).** See [Roadmap](roadmap.md) for current "
+    "scope and [README](../README.md) for the current shipped surface."
+)
+
 
 def _read_prd_text() -> str:
     return PRD_PATH.read_text(encoding="utf-8")
@@ -118,3 +123,16 @@ def test_prd_stays_within_line_budget() -> None:
     text = _read_prd_text()
 
     assert len(text.splitlines()) <= MAX_LINE_COUNT
+
+
+def test_prd_signposts_v01_baseline_above_first_section() -> None:
+    text = _read_prd_text()
+
+    callout_index = text.find(HISTORICAL_CALLOUT_LINE)
+    assert callout_index >= 0, "Historical (v0.1 baseline) callout missing"
+
+    first_section_index = text.index(REQUIRED_HEADINGS[0])
+    assert callout_index < first_section_index, "Historical callout must appear above the first '##' section heading"
+
+    for snippet in FORBIDDEN_SNIPPETS:
+        assert snippet not in HISTORICAL_CALLOUT_LINE, snippet

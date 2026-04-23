@@ -53,6 +53,11 @@ FORBIDDEN_SNIPPETS: tuple[str, ...] = (
     "v1.0",
 )
 
+HISTORICAL_CALLOUT_LINE = (
+    "> **Historical (v0.1 baseline).** See [Roadmap](roadmap.md) for current "
+    "scope and [README](../README.md) for the current shipped surface."
+)
+
 MAX_VISION_LINES = 60
 
 
@@ -103,3 +108,16 @@ def test_vision_avoids_forbidden_scope_and_stays_within_line_budget() -> None:
         assert snippet not in text, snippet
 
     assert len(text.splitlines()) <= MAX_VISION_LINES
+
+
+def test_vision_signposts_v01_baseline_above_problem_statement() -> None:
+    text = _read_vision_text()
+
+    callout_index = text.find(HISTORICAL_CALLOUT_LINE)
+    assert callout_index >= 0, "Historical (v0.1 baseline) callout missing"
+
+    problem_index = text.index("## Problem statement")
+    assert callout_index < problem_index, "Historical callout must appear above the '## Problem statement' heading"
+
+    for snippet in FORBIDDEN_SNIPPETS:
+        assert snippet not in HISTORICAL_CALLOUT_LINE, snippet
