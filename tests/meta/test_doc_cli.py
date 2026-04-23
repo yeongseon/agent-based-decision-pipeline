@@ -18,7 +18,11 @@ SECTION_HEADINGS: tuple[str, ...] = (
 SECTION_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "## Install",
-        ("uv sync",),
+        (
+            "uv sync",
+            "uv run abdp",
+            "python -m abdp",
+        ),
     ),
     (
         "## Commands",
@@ -66,6 +70,8 @@ SECTION_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "`--seed`",
             "uint32",
             "byte-identical",
+            "factory",
+            "deterministic",
         ),
     ),
     (
@@ -90,6 +96,9 @@ FORBIDDEN_SNIPPETS: tuple[str, ...] = (
     "will support",
     "enterprise",
     "milestone sequencing",
+    "is on `PATH`",
+    "is on PATH",
+    "always builds the same",
 )
 
 MAX_CLI_DOC_LINES = 120

@@ -15,7 +15,8 @@ README_PATHS: tuple[Path, ...] = (
     ADR_README_PATH,
 )
 
-MAX_README_LINES = 11
+MAX_DOCS_INDEX_LINES = 10
+MAX_SUBSECTION_README_LINES = 10
 
 EXPECTED_DOCS_INDEX_SNIPPETS = (
     "# Docs",
@@ -96,7 +97,7 @@ def test_docs_index_declares_expected_navigation_and_stays_short() -> None:
 
     _assert_snippets_in_order(docs_index_text, EXPECTED_DOCS_INDEX_SNIPPETS)
 
-    assert len(docs_index_text.splitlines()) < MAX_README_LINES
+    assert len(docs_index_text.splitlines()) < MAX_DOCS_INDEX_LINES
 
 
 def test_subsection_readmes_declare_expected_titles() -> None:
@@ -110,7 +111,7 @@ def test_subsection_readmes_remain_placeholders_and_stay_short() -> None:
 
         _assert_snippets_in_order(readme_text, expected_snippets)
 
-        assert len(readme_text.splitlines()) < MAX_README_LINES
+        assert len(readme_text.splitlines()) < MAX_SUBSECTION_README_LINES
 
 
 def test_adr_readme_references_template() -> None:
