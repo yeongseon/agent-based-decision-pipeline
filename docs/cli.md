@@ -12,8 +12,17 @@ domain primitives.
 uv sync
 ```
 
-After the editable install completes, `abdp` is on `PATH` and `python -m abdp`
-works as well.
+Inside the project virtual environment, invoke the CLI either through `uv`
+or directly through Python:
+
+```bash
+uv run abdp --help
+python -m abdp --help
+```
+
+Both forms reach the same entry point; the rest of this guide writes
+commands as `abdp …` for brevity, but every example is equivalent to
+`uv run abdp …` or `python -m abdp …` from a checkout.
 
 ## Commands
 
@@ -77,8 +86,12 @@ under [Running a scenario](#running-a-scenario).
 
 ## Reproducibility notes
 
-- `--seed` is the only knob; the same `(spec, --seed)` pair always builds the
-  same `AuditLog`, so `abdp run` output is deterministic for a given factory.
+- `--seed` is the only knob the CLI itself controls; it validates the value
+  and forwards it to the factory resolved from `<module.path:callable>`.
+- Reproducible output therefore depends on the factory being seed-driven and
+  deterministic — that is, on the factory using only the supplied `Seed` to
+  build the `AuditLog`. Given such a factory, the same `(spec, --seed)` pair
+  produces the same `AuditLog` on every run.
 - Seeds are validated as non-negative `uint32` integers; out-of-range values
   exit at the parser, before any factory runs.
 - `abdp report --format json` rebuilds the in-memory `AuditLog` and re-renders
