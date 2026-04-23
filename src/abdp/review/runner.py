@@ -1,6 +1,6 @@
 """Review-loop runner that keeps rejected attempts off the canonical plane."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
 
 from abdp.agents import Agent, AgentContext, AgentDecision
@@ -26,9 +26,11 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
     reviser: Reviser[A]
     policy: CorrectionPolicy
     recorder: TraceRecorder | None = None
+    _active_recorder: TraceRecorder | None = field(default=None, init=False, repr=False, compare=False)
 
     def run(self, spec: ScenarioSpec[S, P, A]) -> ScenarioRun[S, P, A]:
         """Execute the scenario and commit only accepted or policy-selected steps."""
+        object.__setattr__(self, "_active_recorder", self._build_active_recorder(spec))
         state: SimulationState[S, P, A] = spec.build_initial_state()
         steps: list[ScenarioStep[S, P, A]] = []
 
@@ -54,7 +56,26 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
             if stop or state.step_index >= self.max_steps:
                 break
 
+        object.__setattr__(self, "_active_recorder", None)
         return ScenarioRun(scenario_key=spec.scenario_key, seed=spec.seed, steps=tuple(steps), final_state=state)
+
+    def _build_active_recorder(self, spec: ScenarioSpec[S, P, A]) -> TraceRecorder | None:
+        if self.recorder is None:
+            return None
+        return TraceRecorder(
+            store=self.recorder.store,
+            seed=spec.seed,
+            run_id=self._stable_run_id(spec),
+        )
+
+    def _stable_run_id(self, spec: ScenarioSpec[S, P, A]) -> str:
+        critic_name = f"{type(self.critic).__module__}.{type(self.critic).__qualname__}"
+        reviser_name = f"{type(self.reviser).__module__}.{type(self.reviser).__qualname__}"
+        return (
+            f"review:{spec.scenario_key}:{int(spec.seed)}:"
+            f"{self.policy.max_retries}:{self.policy.min_score:.17g}:{self.policy.on_fail}:"
+            f"{critic_name}:{reviser_name}"
+        )
 
     def _review_step(
         self,
@@ -175,8 +196,8 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
     ) -> TraceEvent | None:
         return (
             None
-            if self.recorder is None
-            else self.recorder.record(
+            if self._active_recorder is None
+            else self._active_recorder.record(
                 event_type=event_type,
                 step_index=step_index,
                 attributes=attributes,
