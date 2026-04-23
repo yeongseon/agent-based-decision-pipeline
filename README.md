@@ -14,13 +14,13 @@ Teams that study or compare decision strategies often rebuild one-off simulation
 
 ## Getting started
 
-Install from source and walk the [10-minute modeling quickstart](docs/quickstart.md):
+Install from source:
 
 ```bash
 pip install -e .
 ```
 
-The quickstart introduces `abdp.agents`, `abdp.scenario`, the deterministic runner, and the audit log produced by the `abdp.cli` `run` and `report` commands shipped in v0.3.
+Then walk the [10-minute modeling quickstart](docs/quickstart.md). It introduces `abdp.agents`, `abdp.scenario`, and the deterministic `ScenarioRunner` by building a single self-contained reproducible scenario top-to-bottom.
 
 ## Roadmap
 
