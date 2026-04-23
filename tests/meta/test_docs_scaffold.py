@@ -76,7 +76,9 @@ EXPECTED_EXAMPLES_INDEX_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
         (
             "python -m examples.credit_underwriting",
             "[`examples/credit_underwriting`](../../examples/credit_underwriting)",
+            "`examples.credit_underwriting.audit:build_audit_log`",
             "`selected_proposal`",
+            "non-empty proposal step",
         ),
     ),
     (
@@ -84,7 +86,9 @@ EXPECTED_EXAMPLES_INDEX_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
         (
             "python -m examples.queue_scheduling",
             "[`examples/queue_scheduling`](../../examples/queue_scheduling)",
+            "`examples.queue_scheduling.audit:build_audit_log`",
             "`selected_proposal`",
+            "non-empty proposal step",
         ),
     ),
     (
