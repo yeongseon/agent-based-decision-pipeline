@@ -5,7 +5,9 @@ from __future__ import annotations
 import json
 import math
 import sqlite3
+from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -203,6 +205,51 @@ def test_inspect_cli_returns_two_on_corrupt_attributes_json(
             0,
             "step.begin",
             "this-is-not-json",
+            0,
+            None,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+    exit_code = main(["inspect", "run-x", "--db", str(db)])
+    captured = capsysbinary.readouterr()
+    assert exit_code == 2
+    assert captured.out == b""
+    assert captured.err != b""
+
+
+def test_trace_event_rejects_non_mapping_attributes() -> None:
+    with pytest.raises(TypeError):
+        TraceEvent(
+            event_id=UUID(int=1),
+            run_id="r",
+            seq=0,
+            step_index=0,
+            event_type="x",
+            attributes=cast("Mapping[str, object]", []),
+            timestamp_ns=0,
+            parent_event_id=None,
+        )
+
+
+def test_inspect_cli_returns_two_on_attributes_json_array(
+    tmp_path: Path,
+    capsysbinary: pytest.CaptureFixture[bytes],
+) -> None:
+    db = tmp_path / "trace.db"
+    store = SQLiteTraceStore(db)
+    store.close()
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "INSERT INTO trace_events VALUES (?,?,?,?,?,?,?,?)",
+        (
+            str(UUID(int=1)),
+            "run-x",
+            0,
+            0,
+            "step.begin",
+            json.dumps([1, 2, 3]),
             0,
             None,
         ),
