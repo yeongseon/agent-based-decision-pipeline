@@ -19,7 +19,7 @@ def test_scenario_runner_is_a_frozen_slot_backed_dataclass_with_expected_fields(
     assert "__slots__" in ScenarioRunner.__dict__
 
     fields = {f.name: f.type for f in dataclasses.fields(ScenarioRunner)}
-    assert set(fields) == {"agents", "resolver", "max_steps"}
+    assert set(fields) == {"agents", "resolver", "max_steps", "recorder"}
     assert fields["max_steps"] is int
 
     hints = get_type_hints(ScenarioRunner)
