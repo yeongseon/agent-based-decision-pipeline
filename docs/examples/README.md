@@ -20,7 +20,8 @@ summary, or call the audit factory at
 `AuditLog` whose evidence stream is keyed by `selected_proposal`. The
 factory is exposed at the submodule path because
 [`examples/credit_underwriting`](../../examples/credit_underwriting)
-deliberately keeps its package `__init__` empty.
+deliberately does not re-export `build_audit_log` from its package
+`__init__`.
 
 The frozen JSON snapshot below was rendered with `Seed(7)` and is the same
 artifact that
@@ -36,7 +37,8 @@ Run locally with `python -m examples.queue_scheduling`, or call the audit
 factory at `examples.queue_scheduling.audit:build_audit_log` to obtain the
 corresponding `AuditLog`. The factory is exposed at the submodule path
 because [`examples/queue_scheduling`](../../examples/queue_scheduling)
-deliberately keeps its package `__init__` empty.
+deliberately does not re-export `build_audit_log` from its package
+`__init__`.
 
 The frozen JSON snapshot below was rendered with `Seed(11)` and is the same
 artifact that
