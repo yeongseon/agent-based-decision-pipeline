@@ -1,5 +1,5 @@
 def get_version() -> str:
-    return "0.1.0.dev0"
+    return "0.3.0"
 
 
 __version__ = get_version()
