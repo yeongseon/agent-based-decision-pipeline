@@ -1,5 +1,7 @@
 # Product requirements (v0.1)
 
+> **Historical (v0.1 baseline).** See [Roadmap](roadmap.md) for current scope and [README](../README.md) for the current shipped surface.
+
 This document defines the minimum product boundary for v0.1 of ABDP and continues the scope set in [docs/vision.md](vision.md).
 
 ## Primary user and job

@@ -1,5 +1,7 @@
 # Project vision
 
+> **Historical (v0.1 baseline).** See [Roadmap](roadmap.md) for current scope and [README](../README.md) for the current shipped surface.
+
 A Python framework for reproducible agent-based decision simulation
 
 ## Problem statement
