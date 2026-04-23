@@ -7,7 +7,7 @@ from abdp.agents import Agent, AgentContext, AgentDecision
 from abdp.inspector import TraceEvent, TraceRecorder
 from abdp.review.attempt import ReviewAttempt
 from abdp.review.critic import Critic
-from abdp.review.policy import CorrectionPolicy
+from abdp.review.policy import CorrectionMode, CorrectionPolicy
 from abdp.review.reviser import Reviser
 from abdp.scenario import ActionResolver, ScenarioRun, ScenarioStep
 from abdp.simulation import ActionProposal, ParticipantState, ScenarioSpec, SegmentState, SimulationState
@@ -28,7 +28,7 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
     recorder: TraceRecorder | None = None
 
     def run(self, spec: ScenarioSpec[S, P, A]) -> ScenarioRun[S, P, A]:
-        """Execute the scenario and commit only accepted steps."""
+        """Execute the scenario and commit only accepted or policy-selected steps."""
         state: SimulationState[S, P, A] = spec.build_initial_state()
         steps: list[ScenarioStep[S, P, A]] = []
 
@@ -38,37 +38,83 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
                 step_index=state.step_index,
                 attributes={"scenario_key": spec.scenario_key},
             )
-            decisions: tuple[AgentDecision[A], ...] = tuple(self._decide(agent, spec, state) for agent in self.agents)
-            emissions: tuple[A, ...] = tuple(proposal for decision in decisions for proposal in decision.proposals)
-            merged: tuple[A, ...] = state.pending_actions + emissions
-            step = ScenarioStep(state=state, decisions=decisions, proposals=merged)
-
-            if merged:
-                review = self.critic.evaluate(step)
-                attempt = ReviewAttempt(
-                    step_index=state.step_index,
-                    attempt_no=0,
-                    step=step,
-                    decision=review,
-                    accepted=review.score >= self.policy.min_score,
-                )
-                self._emit_attempt(
-                    attempt=attempt, parent_event_id=None if begin_event is None else begin_event.event_id
-                )
-
-            steps.append(step)
+            end_step, committed_step, next_state, stop = self._review_step(
+                spec=spec,
+                state=state,
+                parent_event_id=None if begin_event is None else begin_event.event_id,
+            )
             self._emit(
                 event_type="step.end",
-                step_index=state.step_index,
-                attributes={"proposals": len(merged), "decisions": len(decisions)},
+                step_index=end_step.state.step_index,
+                attributes={"proposals": len(end_step.proposals), "decisions": len(end_step.decisions)},
             )
-            if not merged:
-                break
-            state = self.resolver.resolve(state, merged)
-            if state.step_index >= self.max_steps:
+            if committed_step is not None:
+                steps.append(committed_step)
+            state = next_state
+            if stop or state.step_index >= self.max_steps:
                 break
 
         return ScenarioRun(scenario_key=spec.scenario_key, seed=spec.seed, steps=tuple(steps), final_state=state)
+
+    def _review_step(
+        self,
+        *,
+        spec: ScenarioSpec[S, P, A],
+        state: SimulationState[S, P, A],
+        parent_event_id: UUID | None,
+    ) -> tuple[ScenarioStep[S, P, A], ScenarioStep[S, P, A] | None, SimulationState[S, P, A], bool]:
+        proposals_override: tuple[A, ...] | None = None
+        attempt_no = 0
+
+        while True:
+            decisions = tuple(self._decide(agent, spec, state) for agent in self.agents)
+            emissions = tuple(proposal for decision in decisions for proposal in decision.proposals)
+            proposals = state.pending_actions + emissions if proposals_override is None else proposals_override
+            step = ScenarioStep(state=state, decisions=decisions, proposals=proposals)
+
+            if not proposals:
+                return step, step, state, True
+
+            review = self.critic.evaluate(step)
+            accepted = review.score >= self.policy.min_score
+            attempt = ReviewAttempt(
+                step_index=state.step_index,
+                attempt_no=attempt_no,
+                step=step,
+                decision=review,
+                accepted=accepted,
+            )
+            self._emit_attempt(
+                attempt=attempt,
+                disposition=self._disposition(accepted=accepted, attempt_no=attempt_no),
+                parent_event_id=parent_event_id,
+            )
+
+            if accepted:
+                return step, step, self.resolver.resolve(state, proposals), False
+
+            if attempt_no < self.policy.max_retries:
+                proposals_override = self.reviser.revise(attempt)
+                attempt_no += 1
+                continue
+
+            return self._resolve_terminal_failure(state=state, step=step, attempt=attempt)
+
+    def _resolve_terminal_failure(
+        self,
+        *,
+        state: SimulationState[S, P, A],
+        step: ScenarioStep[S, P, A],
+        attempt: ReviewAttempt[A],
+    ) -> tuple[ScenarioStep[S, P, A], ScenarioStep[S, P, A] | None, SimulationState[S, P, A], bool]:
+        mode: CorrectionMode = self.policy.on_fail
+        if mode == "rollback":
+            return step, None, state, True
+        if mode == "stop":
+            return step, None, state, True
+        revised = self.reviser.revise(attempt)
+        revised_step = ScenarioStep(state=state, decisions=step.decisions, proposals=revised)
+        return revised_step, revised_step, self.resolver.resolve(state, revised), True
 
     def _decide(
         self,
@@ -92,7 +138,20 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
         )
         return decision
 
-    def _emit_attempt(self, *, attempt: ReviewAttempt[A], parent_event_id: UUID | None) -> None:
+    def _disposition(self, *, accepted: bool, attempt_no: int) -> str:
+        if accepted:
+            return "accept"
+        if attempt_no < self.policy.max_retries:
+            return "retry"
+        return self.policy.on_fail
+
+    def _emit_attempt(
+        self,
+        *,
+        attempt: ReviewAttempt[A],
+        disposition: str,
+        parent_event_id: UUID | None,
+    ) -> None:
         self._emit(
             event_type="review.attempt",
             step_index=attempt.step_index,
@@ -101,6 +160,7 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
                 "accepted": attempt.accepted,
                 "score": attempt.decision.score,
                 "critique": attempt.decision.critique,
+                "disposition": disposition,
             },
             parent_event_id=parent_event_id,
         )
