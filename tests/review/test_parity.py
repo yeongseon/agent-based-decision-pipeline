@@ -6,6 +6,7 @@ from uuid import UUID
 
 from abdp.agents import AgentContext, AgentDecision
 from abdp.core import JsonValue, Seed
+from abdp.inspector import MemoryTraceStore, TraceRecorder
 from abdp.review import CorrectionPolicy, ReviewDecision, ReviewLoopRunner
 from abdp.scenario import ScenarioRunner
 from abdp.simulation import ParticipantState, SegmentState, SimulationState
@@ -21,6 +22,7 @@ class _Action:
 
 
 _State = SimulationState[SegmentState, ParticipantState, _Action]
+_SEED = Seed(7)
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,7 +85,7 @@ def _make_state(
     step_index: int = 0,
     pending: tuple[_Action, ...] = (),
     snapshot_suffix: int = 1,
-    seed: Seed = Seed(7),
+    seed: Seed = _SEED,
 ) -> _State:
     return SimulationState[SegmentState, ParticipantState, _Action](
         step_index=step_index,
@@ -103,7 +105,7 @@ def _make_action(suffix: str) -> _Action:
 
 def test_review_loop_runner_with_zero_retries_matches_scenario_runner() -> None:
     initial = _make_state(step_index=0, pending=())
-    spec = _Spec(scenario_key="parity", seed=Seed(7), initial=initial)
+    spec = _Spec(scenario_key="parity", seed=_SEED, initial=initial)
     agent = _RecordingAgent(agent_id="agent-1", proposals_to_emit=(_make_action("x"),))
     resolver = _RecordingResolver()
     scenario_runner = ScenarioRunner(agents=(agent,), resolver=resolver, max_steps=3)
@@ -111,6 +113,44 @@ def test_review_loop_runner_with_zero_retries_matches_scenario_runner() -> None:
         agents=(agent,),
         resolver=resolver,
         max_steps=3,
+        critic=_AcceptingCritic(),
+        reviser=_PassThroughReviser(),
+        policy=CorrectionPolicy(max_retries=0, min_score=0.0, on_fail="stop"),
+    )
+
+    assert review_runner.run(spec) == scenario_runner.run(spec)
+
+
+def test_review_loop_runner_matches_scenario_runner_when_no_proposals_and_recorder_enabled() -> None:
+    initial = _make_state(step_index=0, pending=())
+    spec = _Spec(scenario_key="parity-empty", seed=_SEED, initial=initial)
+    agent = _RecordingAgent(agent_id="agent-1", proposals_to_emit=())
+    resolver = _RecordingResolver()
+    recorder = TraceRecorder(store=MemoryTraceStore(), seed=_SEED, run_id="review-parity-empty")
+    scenario_runner = ScenarioRunner(agents=(agent,), resolver=resolver, max_steps=3, recorder=recorder)
+    review_runner = ReviewLoopRunner(
+        agents=(agent,),
+        resolver=resolver,
+        max_steps=3,
+        critic=_AcceptingCritic(),
+        reviser=_PassThroughReviser(),
+        policy=CorrectionPolicy(max_retries=0, min_score=0.0, on_fail="stop"),
+        recorder=recorder,
+    )
+
+    assert review_runner.run(spec) == scenario_runner.run(spec)
+
+
+def test_review_loop_runner_matches_scenario_runner_when_max_steps_is_zero() -> None:
+    initial = _make_state(step_index=0, pending=())
+    spec = _Spec(scenario_key="parity-zero", seed=_SEED, initial=initial)
+    agent = _RecordingAgent(agent_id="agent-1", proposals_to_emit=(_make_action("x"),))
+    resolver = _RecordingResolver()
+    scenario_runner = ScenarioRunner(agents=(agent,), resolver=resolver, max_steps=0)
+    review_runner = ReviewLoopRunner(
+        agents=(agent,),
+        resolver=resolver,
+        max_steps=0,
         critic=_AcceptingCritic(),
         reviser=_PassThroughReviser(),
         policy=CorrectionPolicy(max_retries=0, min_score=0.0, on_fail="stop"),
