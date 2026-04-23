@@ -1,8 +1,9 @@
 # CLI
 
-The `abdp` console script ships two subcommands for running scenarios and
-rendering audit reports from the command line. The CLI surface is a thin,
-deterministic wrapper around the same building blocks shown in the
+The `abdp` console script ships three subcommands for running scenarios,
+rendering audit reports, and inspecting captured traces from the command
+line. The CLI surface is a thin, deterministic wrapper around the same
+building blocks shown in the
 [10-minute modeling quickstart](quickstart.md); it does not introduce new
 domain primitives.
 
@@ -30,6 +31,7 @@ commands as `abdp …` for brevity, but every example is equivalent to
 | --- | --- |
 | `abdp run` | Build an `AuditLog` from a scenario factory and render it to JSON. |
 | `abdp report` | Reload a serialized `AuditLog` and re-render it as JSON or Markdown. |
+| `abdp inspect` | Query a SQLite trace store and emit JSON Lines (see [Inspector](inspector.md)). |
 
 `abdp` with no arguments (or `--help`) prints the parser help and exits `0`.
 
@@ -80,6 +82,8 @@ single-line stderr message.
 | `abdp run` | `2` | Loader could not resolve the spec or the factory did not return an `AuditLog`. |
 | `abdp report` | `0` | Audit log reloaded and re-rendered successfully. |
 | `abdp report` | `2` | Audit log could not be read, parsed, or reconstructed. |
+| `abdp inspect` | `0` | Trace query completed (zero or more events emitted). |
+| `abdp inspect` | `2` | Trace database missing/corrupt, output unwritable, or argparse rejection. |
 
 `WARN` does not change the exit code; it only emits the stderr notice noted
 under [Running a scenario](#running-a-scenario).
