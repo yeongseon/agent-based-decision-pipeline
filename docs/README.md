@@ -8,3 +8,4 @@ This index is intentionally minimal. Detailed expansion is deferred to #044.
 - [ADRs](adr/README.md) — Architecture decision records and template.
 - [CLI](cli.md) — Command-line usage reference for `abdp run`, `abdp report`, and `abdp inspect`.
 - [Inspector](inspector.md) — In-process tracing layer and `abdp inspect` query CLI.
+- [Review](review.md) — Cyclic `ReviewLoopRunner` and the two-plane self-correction model.

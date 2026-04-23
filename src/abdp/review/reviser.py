@@ -3,12 +3,13 @@
 from typing import Protocol, runtime_checkable
 
 from abdp.review.attempt import ReviewAttempt
+from abdp.simulation import ActionProposal
 
 __all__ = ["Reviser"]
 
 
 @runtime_checkable
-class Reviser[A](Protocol):
+class Reviser[A: ActionProposal](Protocol):
     """Deterministic proposal reviser for a rejected attempt."""
 
     def revise(self, attempt: ReviewAttempt[A]) -> tuple[A, ...]: ...  # pragma: no cover

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
@@ -10,6 +9,7 @@ from abdp.core import JsonValue, Seed
 from abdp.evidence import InMemoryEvidenceStore, make_evidence_record
 from abdp.inspector import MemoryTraceStore, TraceRecorder
 from abdp.review import CorrectionPolicy, ReviewAttempt, ReviewDecision, ReviewLoopRunner
+from abdp.scenario import ScenarioStep
 from abdp.simulation import ParticipantState, SegmentState, SimulationState
 from abdp.simulation.snapshot_ref import SnapshotRef
 
@@ -74,7 +74,7 @@ class _EvidenceResolver:
 class _Critic:
     scores: dict[str, float]
 
-    def evaluate(self, step: object) -> ReviewDecision:
+    def evaluate(self, step: ScenarioStep[SegmentState, ParticipantState, _Action]) -> ReviewDecision:
         proposal_id = step.proposals[0].proposal_id
         return ReviewDecision(score=self.scores[proposal_id], critique=proposal_id)
 

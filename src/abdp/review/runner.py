@@ -98,7 +98,7 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
 
             review = self.critic.evaluate(step)
             accepted = review.score >= self.policy.min_score
-            attempt = ReviewAttempt(
+            attempt: ReviewAttempt[A] = ReviewAttempt(
                 step_index=state.step_index,
                 attempt_no=attempt_no,
                 step=step,

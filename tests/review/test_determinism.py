@@ -7,6 +7,7 @@ from abdp.agents import AgentContext, AgentDecision
 from abdp.core import JsonValue, Seed
 from abdp.inspector import MemoryTraceStore, TraceEvent, TraceRecorder
 from abdp.review import CorrectionPolicy, ReviewAttempt, ReviewDecision, ReviewLoopRunner
+from abdp.scenario import ScenarioStep
 from abdp.simulation import ParticipantState, SegmentState, SimulationState
 from abdp.simulation.snapshot_ref import SnapshotRef
 
@@ -58,7 +59,7 @@ class _Resolver:
 class _Critic:
     scores: dict[str, float]
 
-    def evaluate(self, step: object) -> ReviewDecision:
+    def evaluate(self, step: ScenarioStep[SegmentState, ParticipantState, _Action]) -> ReviewDecision:
         proposal_id = step.proposals[0].proposal_id
         return ReviewDecision(score=self.scores[proposal_id], critique=proposal_id)
 

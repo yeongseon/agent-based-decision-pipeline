@@ -7,10 +7,11 @@ from abdp.review.attempt import ReviewAttempt, ReviewDecision
 from abdp.review.critic import Critic
 from abdp.review.reviser import Reviser
 from abdp.scenario import ScenarioStep
+from abdp.simulation import ActionProposal, ParticipantState, SegmentState
 
 
 class _ValidCritic:
-    def evaluate(self, step: ScenarioStep) -> ReviewDecision:
+    def evaluate(self, step: ScenarioStep[SegmentState, ParticipantState, ActionProposal]) -> ReviewDecision:
         raise NotImplementedError
 
 

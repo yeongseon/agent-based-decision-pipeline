@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass
 
 from abdp.scenario import ScenarioStep
+from abdp.simulation import ActionProposal, ParticipantState, SegmentState
 
 __all__ = ["ReviewAttempt", "ReviewDecision", "ReviewTrace"]
 
@@ -28,12 +29,12 @@ class ReviewDecision:
 
 
 @dataclass(frozen=True, slots=True)
-class ReviewAttempt[A]:
+class ReviewAttempt[A: ActionProposal]:
     """Materialized review attempt for one logical step."""
 
     step_index: int
     attempt_no: int
-    step: ScenarioStep
+    step: ScenarioStep[SegmentState, ParticipantState, A]
     decision: ReviewDecision
     accepted: bool
 
@@ -45,7 +46,7 @@ class ReviewAttempt[A]:
 
 
 @dataclass(frozen=True, slots=True)
-class ReviewTrace:
+class ReviewTrace[A: ActionProposal]:
     """Deterministic collection of review attempts for a run."""
 
-    attempts: tuple[ReviewAttempt, ...]
+    attempts: tuple[ReviewAttempt[A], ...]
