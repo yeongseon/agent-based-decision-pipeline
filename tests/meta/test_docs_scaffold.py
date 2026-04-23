@@ -15,7 +15,7 @@ README_PATHS: tuple[Path, ...] = (
     ADR_README_PATH,
 )
 
-MAX_DOCS_INDEX_LINES = 10
+MAX_DOCS_INDEX_LINES = 11
 MAX_SUBSECTION_README_LINES = 10
 MAX_EXAMPLES_INDEX_LINES = 80
 
@@ -26,7 +26,8 @@ EXPECTED_DOCS_INDEX_SNIPPETS = (
     "- [Models](models/README.md) — Conceptual model documentation for abdp.",
     "- [Examples](examples/README.md) — Worked examples and tutorials.",
     "- [ADRs](adr/README.md) — Architecture decision records and template.",
-    "- [CLI](cli.md) — Command-line usage reference for `abdp run` and `abdp report`.",
+    "- [CLI](cli.md) — Command-line usage reference for `abdp run`, `abdp report`, and `abdp inspect`.",
+    "- [Inspector](inspector.md) — In-process tracing layer and `abdp inspect` query CLI.",
 )
 
 EXPECTED_SUBSECTION_TITLES: tuple[tuple[Path, str], ...] = (
