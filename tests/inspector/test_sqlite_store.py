@@ -191,3 +191,12 @@ def test_sqlite_store_query_unknown_filter_raises(tmp_path: Path) -> None:
             tuple(store.query(run_id="run-1", bogus="x"))
     finally:
         store.close()
+
+
+def test_sqlite_store_append_rejects_non_trace_event(tmp_path: Path) -> None:
+    store = SQLiteTraceStore(":memory:")
+    try:
+        with pytest.raises(TypeError, match="TraceEvent"):
+            store.append("not an event")  # type: ignore[arg-type]
+    finally:
+        store.close()
