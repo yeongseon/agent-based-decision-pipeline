@@ -114,12 +114,12 @@ def test_trace_event_rejects_empty_event_type() -> None:
 
 def test_trace_event_attributes_only_allow_primitive_values() -> None:
     with pytest.raises(TypeError, match="attribute"):
-        _event(attributes={"k": object()})  # type: ignore[dict-item]
+        _event(attributes={"k": object()})
 
 
 def test_trace_event_attributes_reject_non_str_keys() -> None:
     with pytest.raises(TypeError, match="attribute key"):
-        _event(attributes={1: "v"})  # type: ignore[dict-item]
+        _event(attributes={1: "v"})
 
 
 def test_trace_event_attributes_accept_str_int_float_bool() -> None:

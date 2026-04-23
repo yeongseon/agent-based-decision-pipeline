@@ -37,7 +37,7 @@ def _ev(seq: int = 0, *, run_id: str = "run-x") -> TraceEvent:
 
 
 def test_trace_event_attributes_are_isolated_from_external_dict_mutation() -> None:
-    src: dict[str, object] = {"a": 1}
+    src: dict[str, str | int | float | bool] = {"a": 1}
     ev = make_trace_event(
         seed=Seed(0),
         run_id="r",
@@ -227,7 +227,7 @@ def test_trace_event_rejects_non_mapping_attributes() -> None:
             seq=0,
             step_index=0,
             event_type="x",
-            attributes=cast("Mapping[str, object]", []),
+            attributes=cast("Mapping[str, str | int | float | bool]", []),
             timestamp_ns=0,
             parent_event_id=None,
         )
