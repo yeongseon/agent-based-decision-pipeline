@@ -10,8 +10,10 @@ not influence identity.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Final
 from uuid import UUID
 
@@ -50,6 +52,7 @@ class TraceEvent:
             raise ValueError("step_index must be non-negative")
         if self.timestamp_ns < 0:
             raise ValueError("timestamp_ns must be non-negative")
+        frozen: dict[str, TraceAttributeValue] = {}
         for key, value in self.attributes.items():
             if not isinstance(key, str):
                 raise TypeError(f"attribute key must be str, got {type(key).__name__}")
@@ -57,6 +60,10 @@ class TraceEvent:
                 raise TypeError(
                     f"attribute value for {key!r} must be str|int|float|bool, " f"got {type(value).__name__}"
                 )
+            if isinstance(value, float) and not math.isfinite(value):
+                raise ValueError(f"attribute value for {key!r} must be a finite float, got {value!r}")
+            frozen[key] = value
+        object.__setattr__(self, "attributes", MappingProxyType(frozen))
 
 
 def make_trace_event(

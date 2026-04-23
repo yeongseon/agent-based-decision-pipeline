@@ -65,7 +65,9 @@ class SQLiteTraceStore:
                 ),
             )
         except sqlite3.IntegrityError as exc:
-            raise ValueError(f"duplicate event_id: {event.event_id}") from exc
+            raise ValueError(
+                f"duplicate event_id or (run_id, seq) collision for event_id={event.event_id}: {exc}"
+            ) from exc
         conn.commit()
 
     def query(self, *, run_id: str, **filters: Any) -> Iterator[TraceEvent]:

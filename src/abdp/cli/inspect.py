@@ -55,10 +55,13 @@ def inspect(
             filters["step_index"] = step
         if event_type is not None:
             filters["event_type"] = event_type
-        events = list(store.query(run_id=run_id, **filters))
+        try:
+            events = list(store.query(run_id=run_id, **filters))
+        except (sqlite3.DatabaseError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            raise InspectError(f"malformed trace database: {exc}") from exc
         rendered = _render_jsonl(events)
         _write_output(rendered, output)
-    except OSError as exc:
+    except (OSError, InspectError) as exc:
         print(str(exc).splitlines()[0] if str(exc) else type(exc).__name__, file=sys.stderr)
         return _EXIT_ERROR
     finally:

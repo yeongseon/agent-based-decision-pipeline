@@ -34,7 +34,6 @@ class TraceRecorder:
         parent_event_id: UUID | None = None,
     ) -> TraceEvent:
         seq = self._next_seq
-        self._next_seq += 1
         ev = make_trace_event(
             seed=self.seed,
             run_id=self.run_id,
@@ -46,4 +45,5 @@ class TraceRecorder:
             parent_event_id=parent_event_id,
         )
         self.store.append(ev)
+        self._next_seq = seq + 1
         return ev

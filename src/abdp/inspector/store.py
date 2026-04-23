@@ -42,13 +42,18 @@ class TraceStore(Protocol):
 class MemoryTraceStore:
     def __init__(self) -> None:
         self._events: dict[UUID, TraceEvent] = {}
+        self._seen_run_seq: set[tuple[str, int]] = set()
 
     def append(self, event: TraceEvent) -> None:
         if not isinstance(event, TraceEvent):
             raise TypeError(f"expected TraceEvent, got {type(event).__name__}")
         if event.event_id in self._events:
             raise ValueError(f"duplicate event_id: {event.event_id}")
+        key = (event.run_id, event.seq)
+        if key in self._seen_run_seq:
+            raise ValueError(f"duplicate (run_id, seq): {key!r}")
         self._events[event.event_id] = event
+        self._seen_run_seq.add(key)
 
     def query(self, *, run_id: str, **filters: Any) -> Iterator[TraceEvent]:
         validate_query_filters(filters)
