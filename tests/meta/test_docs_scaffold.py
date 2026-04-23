@@ -79,6 +79,7 @@ EXPECTED_EXAMPLES_INDEX_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "`examples.credit_underwriting.audit:build_audit_log`",
             "`selected_proposal`",
             "non-empty proposal step",
+            "does not re-export `build_audit_log`",
         ),
     ),
     (
@@ -89,6 +90,7 @@ EXPECTED_EXAMPLES_INDEX_SNIPPETS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "`examples.queue_scheduling.audit:build_audit_log`",
             "`selected_proposal`",
             "non-empty proposal step",
+            "does not re-export `build_audit_log`",
         ),
     ),
     (
@@ -111,6 +113,8 @@ FORBIDDEN_EXAMPLES_INDEX_SNIPPETS: tuple[str, ...] = (
     "milestone sequencing",
     "Placeholder only.",
     "Detailed expansion is deferred to #044.",
+    "keeps its package `__init__` empty",
+    "package `__init__` empty",
 )
 
 EXPECTED_ADR_TEMPLATE_POINTER = "Start from [0000-template.md](0000-template.md) when writing a new ADR."
