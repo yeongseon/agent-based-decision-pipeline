@@ -16,7 +16,10 @@ from abdp.inspector import (
 )
 
 
-def _populate(db_path: Path, *, seed: Seed = Seed(42), run_id: str = "run-x") -> None:
+_DEFAULT_SEED = Seed(42)
+
+
+def _populate(db_path: Path, *, seed: Seed = _DEFAULT_SEED, run_id: str = "run-x") -> None:
     store = SQLiteTraceStore(db_path)
     recorder = TraceRecorder(store=store, seed=seed, run_id=run_id)
     recorder.record(event_type="step.begin", step_index=0, attributes={"scenario_key": "demo"})
