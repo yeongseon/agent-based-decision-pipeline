@@ -46,9 +46,10 @@ CorrectionPolicy(
 - `max_retries` counts additional attempts after the first proposal.
 - `min_score` is the critic threshold in `[0.0, 1.0]`.
 - `on_fail` decides the terminal outcome after retries are exhausted:
-  - `rollback` — stop without committing the rejected step.
-  - `stop` — stop without committing the rejected step, but keep the terminal
-    `review.attempt` metadata so the failure is inspectable.
+  - `rollback` — stop without committing the rejected step; the terminal
+    `review.attempt` remains in tracing with `disposition="rollback"`.
+  - `stop` — stop without committing the rejected step; the terminal
+    `review.attempt` remains in tracing with `disposition="stop"`.
   - `revise` — commit one final deterministic revised proposal and stop.
 
 ## Critic and Reviser contracts
