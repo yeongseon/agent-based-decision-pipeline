@@ -182,6 +182,8 @@ class ReviewLoopRunner[S: SegmentState, P: ParticipantState, A: ActionProposal]:
                 "score": attempt.decision.score,
                 "critique": attempt.decision.critique,
                 "disposition": disposition,
+                "snapshot_id": str(attempt.step.state.snapshot_ref.snapshot_id),
+                "storage_key": attempt.step.state.snapshot_ref.storage_key,
             },
             parent_event_id=parent_event_id,
         )
