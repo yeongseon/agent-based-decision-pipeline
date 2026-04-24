@@ -129,6 +129,7 @@ def test_rejected_stop_attempts_stay_out_of_the_canonical_evidence_store() -> No
 def test_rejected_attempts_live_in_inspector_plane_but_accepted_retry_is_canonical() -> None:
     trace_store = MemoryTraceStore()
     evidence_store = InMemoryEvidenceStore[SegmentState, ParticipantState, _Action]()
+    initial = _make_state(snapshot_suffix=77)
     runner = ReviewLoopRunner(
         agents=(_Agent(agent_id="agent-1", proposals_to_emit=(_action("initial"),)),),
         resolver=_EvidenceResolver(evidence_store=evidence_store),
@@ -139,12 +140,16 @@ def test_rejected_attempts_live_in_inspector_plane_but_accepted_retry_is_canonic
         recorder=TraceRecorder(store=trace_store, seed=_SEED, run_id="ignored"),
     )
 
-    run = runner.run(_Spec(scenario_key="isolation-retry", seed=_SEED, initial=_make_state()))
+    run = runner.run(_Spec(scenario_key="isolation-retry", seed=_SEED, initial=initial))
 
     run_id = tuple(trace_store.runs())[0]
     begin_event = tuple(trace_store.query(run_id=run_id, event_type="step.begin"))[0]
     attempts = tuple(trace_store.query(run_id=run_id, event_type="review.attempt"))
     assert [attempt.attributes["accepted"] for attempt in attempts] == [False, True]
     assert all(attempt.parent_event_id == begin_event.event_id for attempt in attempts)
+    assert [attempt.attributes["snapshot_id"] for attempt in attempts] == [
+        str(initial.snapshot_ref.snapshot_id),
+        str(initial.snapshot_ref.snapshot_id),
+    ]
     assert [proposal.proposal_id for proposal in run.steps[0].proposals] == ["revised"]
     assert [record.evidence_key for record in evidence_store.evidence()] == ["revised"]
